@@ -1,0 +1,114 @@
+#ifndef FLEE_CONSTANTS_H
+#define FLEE_CONSTANTS_H
+
+#include <chrono>
+#include <ctime>
+
+#include <ByteArray.h>
+#include <climits>
+#include <random>
+#include <string>
+
+namespace Flee {
+
+/**
+ * @brief 产生一个随机数
+ *
+ * @param min 随机数的最小值
+ * @param max 随机数的最大值
+ * @return int64_t
+ */
+int64_t getRandomNumber(int64_t min, int64_t max);
+
+/**
+ * @brief Get the Random Byte Array object
+ *
+ * @param length
+ * @return ByteArray
+ */
+ByteArray getRandomByteArray(size_t length);
+
+/**
+ * @brief
+ *
+ */
+#define getRandomInt() getRandomNumber(INT_MIN, INT_MAX)
+
+/**
+ * @brief
+ *
+ */
+#define getRandomUInt() getRandomNumber(0, UINT_MAX)
+/**
+ * @brief Get the Random object
+ *
+ * @param length
+ * @param seed
+ * @return std::string
+ */
+std::string getRandom(int length, std::string seed);
+/**
+ * @brief
+ *
+ */
+#define getRandomIntString(length) getRandom(length, "0123456789")
+
+/**
+ * @brief
+ *
+ */
+#define getRandomBool() static_cast<bool>(generateRandomNumber(0, 1))
+
+/**
+ * @brief
+ *
+ */
+#define getRandomString(length) \
+    getRandom(                  \
+        length,                 \
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+/**
+ * @brief
+ *
+ */
+std::string generateUUID();
+
+/**
+ * @brief
+ *
+ * @param imei
+ * @return uint8_t
+ */
+uint8_t luhn(std::string imei);
+
+/**
+ * @brief
+ *
+ * @return int64_t
+ */
+int64_t currentTimeMillis();
+
+/**
+ * @brief
+ *
+ * @return int64_t
+ */
+#define currentTimeSeconds() currentTimeMillis() / 1000
+
+/**
+ * @brief
+ *
+ * @return int64_t
+ */
+ByteArray md5(const std::string& str);
+
+/**
+ * @brief
+ *
+ * @param byteArray
+ * @return ByteArray
+ */
+ByteArray md5(const ByteArray& byteArray);
+} // namespace Flee
+#endif // FLEE_CONSTANTS_H
