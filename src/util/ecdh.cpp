@@ -47,7 +47,6 @@ ECDH::ECDH(ByteArray privateKey, ByteArray publicKey, ByteArray shareKey,
 ECDH ECDH::generateKeyPair() {
     CryptoPP::AutoSeededX917RNG<CryptoPP::AES> rng;
     CryptoPP::ECDH<CryptoPP::ECP>::Domain      dh(CURVE);
-
     ByteArray privateKey(dh.PrivateKeyLength()), publicKey(dh.PublicKeyLength()),
         shareKey(dh.AgreedValueLength());
     try {
@@ -56,7 +55,7 @@ ECDH ECDH::generateKeyPair() {
 
         dh.Agree(( unsigned char* )shareKey.data(), ( unsigned char* )privateKey.data(),
                  ( unsigned char* )ECDH::keyStr.data());
-    } catch(const std::exception& e) {
+    } catch(std::exception& e) {
         spdlog::error("ERROR in generating ECDH's Key Pair \n{}", e.what());
     }
     return ECDH{ privateKey, publicKey, ByteArray(), shareKey, dh };
