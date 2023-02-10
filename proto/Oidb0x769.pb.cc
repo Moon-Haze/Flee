@@ -20,6 +20,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace Flee {
 PROTOBUF_CONSTEXPR ConfigSeq::ConfigSeq(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_._has_bits_)*/{}
@@ -69,43 +70,44 @@ struct ReqBodyDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ReqBodyDefaultTypeInternal _ReqBody_default_instance_;
+}  // namespace Flee
 static ::_pb::Metadata file_level_metadata_Oidb0x769_2eproto[3];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_Oidb0x769_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_Oidb0x769_2eproto = nullptr;
 
 const uint32_t TableStruct_Oidb0x769_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::ConfigSeq, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::ConfigSeq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ConfigSeq, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ConfigSeq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::ConfigSeq, _impl_.type_),
-  PROTOBUF_FIELD_OFFSET(::ConfigSeq, _impl_.version_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ConfigSeq, _impl_.type_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ConfigSeq, _impl_.version_),
   0,
   1,
-  PROTOBUF_FIELD_OFFSET(::QueryUinPackageUsageReq, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::QueryUinPackageUsageReq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Flee::QueryUinPackageUsageReq, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Flee::QueryUinPackageUsageReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::QueryUinPackageUsageReq, _impl_.type_),
-  PROTOBUF_FIELD_OFFSET(::QueryUinPackageUsageReq, _impl_.uinfilesize_),
+  PROTOBUF_FIELD_OFFSET(::Flee::QueryUinPackageUsageReq, _impl_.type_),
+  PROTOBUF_FIELD_OFFSET(::Flee::QueryUinPackageUsageReq, _impl_.uinfilesize_),
   1,
   0,
-  PROTOBUF_FIELD_OFFSET(::ReqBody, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::ReqBody, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ReqBody, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ReqBody, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::ReqBody, _impl_.configlist_),
-  PROTOBUF_FIELD_OFFSET(::ReqBody, _impl_.info_),
-  PROTOBUF_FIELD_OFFSET(::ReqBody, _impl_.province_),
-  PROTOBUF_FIELD_OFFSET(::ReqBody, _impl_.city_),
-  PROTOBUF_FIELD_OFFSET(::ReqBody, _impl_.reqdebugmsg_),
-  PROTOBUF_FIELD_OFFSET(::ReqBody, _impl_.queryuinpackageusagereq_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ReqBody, _impl_.configlist_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ReqBody, _impl_.info_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ReqBody, _impl_.province_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ReqBody, _impl_.city_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ReqBody, _impl_.reqdebugmsg_),
+  PROTOBUF_FIELD_OFFSET(::Flee::ReqBody, _impl_.queryuinpackageusagereq_),
   ~0u,
   0,
   1,
@@ -114,30 +116,35 @@ const uint32_t TableStruct_Oidb0x769_2eproto::offsets[] PROTOBUF_SECTION_VARIABL
   3,
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 8, -1, sizeof(::ConfigSeq)},
-  { 10, 18, -1, sizeof(::QueryUinPackageUsageReq)},
-  { 20, 32, -1, sizeof(::ReqBody)},
+  { 0, 8, -1, sizeof(::Flee::ConfigSeq)},
+  { 10, 18, -1, sizeof(::Flee::QueryUinPackageUsageReq)},
+  { 20, 32, -1, sizeof(::Flee::ReqBody)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_ConfigSeq_default_instance_._instance,
-  &::_QueryUinPackageUsageReq_default_instance_._instance,
-  &::_ReqBody_default_instance_._instance,
+  &::Flee::_ConfigSeq_default_instance_._instance,
+  &::Flee::_QueryUinPackageUsageReq_default_instance_._instance,
+  &::Flee::_ReqBody_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_Oidb0x769_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\017Oidb0x769.proto\"*\n\tConfigSeq\022\014\n\004type\030\001"
-  " \001(\005\022\017\n\007version\030\002 \001(\005\"<\n\027QueryUinPackage"
-  "UsageReq\022\014\n\004type\030\001 \001(\005\022\023\n\013uinFileSize\030\002 "
-  "\001(\003\"\247\001\n\007ReqBody\022\036\n\nconfigList\030\001 \003(\0132\n.Co"
-  "nfigSeq\022\014\n\004info\030\003 \001(\t\022\020\n\010province\030\004 \001(\t\022"
-  "\014\n\004city\030\005 \001(\t\022\023\n\013reqDebugMsg\030\006 \001(\005\0229\n\027qu"
-  "eryUinPackageUsageReq\030e \001(\0132\030.QueryUinPa"
-  "ckageUsageReq"
+  "\n\017Oidb0x769.proto\022\004Flee\"I\n\tConfigSeq\022\021\n\004"
+  "type\030\001 \001(\005H\000\210\001\001\022\024\n\007version\030\002 \001(\005H\001\210\001\001B\007\n"
+  "\005_typeB\n\n\010_version\"_\n\027QueryUinPackageUsa"
+  "geReq\022\021\n\004type\030\001 \001(\005H\000\210\001\001\022\030\n\013uinFileSize\030"
+  "\002 \001(\003H\001\210\001\001B\007\n\005_typeB\016\n\014_uinFileSize\"\225\002\n\007"
+  "ReqBody\022#\n\nconfigList\030\001 \003(\0132\017.Flee.Confi"
+  "gSeq\022\021\n\004info\030\003 \001(\tH\000\210\001\001\022\025\n\010province\030\004 \001("
+  "\tH\001\210\001\001\022\021\n\004city\030\005 \001(\tH\002\210\001\001\022\030\n\013reqDebugMsg"
+  "\030\006 \001(\005H\003\210\001\001\022C\n\027queryUinPackageUsageReq\030e"
+  " \001(\0132\035.Flee.QueryUinPackageUsageReqH\004\210\001\001"
+  "B\007\n\005_infoB\013\n\t_provinceB\007\n\005_cityB\016\n\014_reqD"
+  "ebugMsgB\032\n\030_queryUinPackageUsageReqb\006pro"
+  "to3"
   ;
 static ::_pbi::once_flag descriptor_table_Oidb0x769_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_Oidb0x769_2eproto = {
-    false, false, 293, descriptor_table_protodef_Oidb0x769_2eproto,
+    false, false, 483, descriptor_table_protodef_Oidb0x769_2eproto,
     "Oidb0x769.proto",
     &descriptor_table_Oidb0x769_2eproto_once, nullptr, 0, 3,
     schemas, file_default_instances, TableStruct_Oidb0x769_2eproto::offsets,
@@ -150,6 +157,7 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_Oidb0x76
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_Oidb0x769_2eproto(&descriptor_table_Oidb0x769_2eproto);
+namespace Flee {
 
 // ===================================================================
 
@@ -168,7 +176,7 @@ ConfigSeq::ConfigSeq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:ConfigSeq)
+  // @@protoc_insertion_point(arena_constructor:Flee.ConfigSeq)
 }
 ConfigSeq::ConfigSeq(const ConfigSeq& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -183,7 +191,7 @@ ConfigSeq::ConfigSeq(const ConfigSeq& from)
   ::memcpy(&_impl_.type_, &from._impl_.type_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.version_) -
     reinterpret_cast<char*>(&_impl_.type_)) + sizeof(_impl_.version_));
-  // @@protoc_insertion_point(copy_constructor:ConfigSeq)
+  // @@protoc_insertion_point(copy_constructor:Flee.ConfigSeq)
 }
 
 inline void ConfigSeq::SharedCtor(
@@ -199,7 +207,7 @@ inline void ConfigSeq::SharedCtor(
 }
 
 ConfigSeq::~ConfigSeq() {
-  // @@protoc_insertion_point(destructor:ConfigSeq)
+  // @@protoc_insertion_point(destructor:Flee.ConfigSeq)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -216,7 +224,7 @@ void ConfigSeq::SetCachedSize(int size) const {
 }
 
 void ConfigSeq::Clear() {
-// @@protoc_insertion_point(message_clear_start:ConfigSeq)
+// @@protoc_insertion_point(message_clear_start:Flee.ConfigSeq)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -282,19 +290,18 @@ failure:
 
 uint8_t* ConfigSeq::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:ConfigSeq)
+  // @@protoc_insertion_point(serialize_to_array_start:Flee.ConfigSeq)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
   // optional int32 type = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if (_internal_has_type()) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_type(), target);
   }
 
   // optional int32 version = 2;
-  if (cached_has_bits & 0x00000002u) {
+  if (_internal_has_version()) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_version(), target);
   }
@@ -303,12 +310,12 @@ uint8_t* ConfigSeq::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:ConfigSeq)
+  // @@protoc_insertion_point(serialize_to_array_end:Flee.ConfigSeq)
   return target;
 }
 
 size_t ConfigSeq::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:ConfigSeq)
+// @@protoc_insertion_point(message_byte_size_start:Flee.ConfigSeq)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -341,7 +348,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ConfigSeq::GetClassData() cons
 void ConfigSeq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<ConfigSeq*>(&to_msg);
   auto& from = static_cast<const ConfigSeq&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ConfigSeq)
+  // @@protoc_insertion_point(class_specific_merge_from_start:Flee.ConfigSeq)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -360,7 +367,7 @@ void ConfigSeq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROT
 }
 
 void ConfigSeq::CopyFrom(const ConfigSeq& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ConfigSeq)
+// @@protoc_insertion_point(class_specific_copy_from_start:Flee.ConfigSeq)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -405,7 +412,7 @@ QueryUinPackageUsageReq::QueryUinPackageUsageReq(::PROTOBUF_NAMESPACE_ID::Arena*
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:QueryUinPackageUsageReq)
+  // @@protoc_insertion_point(arena_constructor:Flee.QueryUinPackageUsageReq)
 }
 QueryUinPackageUsageReq::QueryUinPackageUsageReq(const QueryUinPackageUsageReq& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -420,7 +427,7 @@ QueryUinPackageUsageReq::QueryUinPackageUsageReq(const QueryUinPackageUsageReq& 
   ::memcpy(&_impl_.uinfilesize_, &from._impl_.uinfilesize_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.type_) -
     reinterpret_cast<char*>(&_impl_.uinfilesize_)) + sizeof(_impl_.type_));
-  // @@protoc_insertion_point(copy_constructor:QueryUinPackageUsageReq)
+  // @@protoc_insertion_point(copy_constructor:Flee.QueryUinPackageUsageReq)
 }
 
 inline void QueryUinPackageUsageReq::SharedCtor(
@@ -436,7 +443,7 @@ inline void QueryUinPackageUsageReq::SharedCtor(
 }
 
 QueryUinPackageUsageReq::~QueryUinPackageUsageReq() {
-  // @@protoc_insertion_point(destructor:QueryUinPackageUsageReq)
+  // @@protoc_insertion_point(destructor:Flee.QueryUinPackageUsageReq)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -453,7 +460,7 @@ void QueryUinPackageUsageReq::SetCachedSize(int size) const {
 }
 
 void QueryUinPackageUsageReq::Clear() {
-// @@protoc_insertion_point(message_clear_start:QueryUinPackageUsageReq)
+// @@protoc_insertion_point(message_clear_start:Flee.QueryUinPackageUsageReq)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -519,19 +526,18 @@ failure:
 
 uint8_t* QueryUinPackageUsageReq::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:QueryUinPackageUsageReq)
+  // @@protoc_insertion_point(serialize_to_array_start:Flee.QueryUinPackageUsageReq)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
   // optional int32 type = 1;
-  if (cached_has_bits & 0x00000002u) {
+  if (_internal_has_type()) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_type(), target);
   }
 
   // optional int64 uinFileSize = 2;
-  if (cached_has_bits & 0x00000001u) {
+  if (_internal_has_uinfilesize()) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteInt64ToArray(2, this->_internal_uinfilesize(), target);
   }
@@ -540,12 +546,12 @@ uint8_t* QueryUinPackageUsageReq::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:QueryUinPackageUsageReq)
+  // @@protoc_insertion_point(serialize_to_array_end:Flee.QueryUinPackageUsageReq)
   return target;
 }
 
 size_t QueryUinPackageUsageReq::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:QueryUinPackageUsageReq)
+// @@protoc_insertion_point(message_byte_size_start:Flee.QueryUinPackageUsageReq)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -578,7 +584,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*QueryUinPackageUsageReq::GetCl
 void QueryUinPackageUsageReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<QueryUinPackageUsageReq*>(&to_msg);
   auto& from = static_cast<const QueryUinPackageUsageReq&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:QueryUinPackageUsageReq)
+  // @@protoc_insertion_point(class_specific_merge_from_start:Flee.QueryUinPackageUsageReq)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -597,7 +603,7 @@ void QueryUinPackageUsageReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg
 }
 
 void QueryUinPackageUsageReq::CopyFrom(const QueryUinPackageUsageReq& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:QueryUinPackageUsageReq)
+// @@protoc_insertion_point(class_specific_copy_from_start:Flee.QueryUinPackageUsageReq)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -642,13 +648,13 @@ class ReqBody::_Internal {
   static void set_has_reqdebugmsg(HasBits* has_bits) {
     (*has_bits)[0] |= 16u;
   }
-  static const ::QueryUinPackageUsageReq& queryuinpackageusagereq(const ReqBody* msg);
+  static const ::Flee::QueryUinPackageUsageReq& queryuinpackageusagereq(const ReqBody* msg);
   static void set_has_queryuinpackageusagereq(HasBits* has_bits) {
     (*has_bits)[0] |= 8u;
   }
 };
 
-const ::QueryUinPackageUsageReq&
+const ::Flee::QueryUinPackageUsageReq&
 ReqBody::_Internal::queryuinpackageusagereq(const ReqBody* msg) {
   return *msg->_impl_.queryuinpackageusagereq_;
 }
@@ -656,7 +662,7 @@ ReqBody::ReqBody(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:ReqBody)
+  // @@protoc_insertion_point(arena_constructor:Flee.ReqBody)
 }
 ReqBody::ReqBody(const ReqBody& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -697,10 +703,10 @@ ReqBody::ReqBody(const ReqBody& from)
       _this->GetArenaForAllocation());
   }
   if (from._internal_has_queryuinpackageusagereq()) {
-    _this->_impl_.queryuinpackageusagereq_ = new ::QueryUinPackageUsageReq(*from._impl_.queryuinpackageusagereq_);
+    _this->_impl_.queryuinpackageusagereq_ = new ::Flee::QueryUinPackageUsageReq(*from._impl_.queryuinpackageusagereq_);
   }
   _this->_impl_.reqdebugmsg_ = from._impl_.reqdebugmsg_;
-  // @@protoc_insertion_point(copy_constructor:ReqBody)
+  // @@protoc_insertion_point(copy_constructor:Flee.ReqBody)
 }
 
 inline void ReqBody::SharedCtor(
@@ -732,7 +738,7 @@ inline void ReqBody::SharedCtor(
 }
 
 ReqBody::~ReqBody() {
-  // @@protoc_insertion_point(destructor:ReqBody)
+  // @@protoc_insertion_point(destructor:Flee.ReqBody)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -754,7 +760,7 @@ void ReqBody::SetCachedSize(int size) const {
 }
 
 void ReqBody::Clear() {
-// @@protoc_insertion_point(message_clear_start:ReqBody)
+// @@protoc_insertion_point(message_clear_start:Flee.ReqBody)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -788,7 +794,7 @@ const char* ReqBody::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated .ConfigSeq configList = 1;
+      // repeated .Flee.ConfigSeq configList = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
@@ -807,9 +813,7 @@ const char* ReqBody::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
           auto str = _internal_mutable_info();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          #ifndef NDEBUG
-          ::_pbi::VerifyUTF8(str, "ReqBody.info");
-          #endif  // !NDEBUG
+          CHK_(::_pbi::VerifyUTF8(str, "Flee.ReqBody.info"));
         } else
           goto handle_unusual;
         continue;
@@ -819,9 +823,7 @@ const char* ReqBody::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
           auto str = _internal_mutable_province();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          #ifndef NDEBUG
-          ::_pbi::VerifyUTF8(str, "ReqBody.province");
-          #endif  // !NDEBUG
+          CHK_(::_pbi::VerifyUTF8(str, "Flee.ReqBody.province"));
         } else
           goto handle_unusual;
         continue;
@@ -831,9 +833,7 @@ const char* ReqBody::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
           auto str = _internal_mutable_city();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          #ifndef NDEBUG
-          ::_pbi::VerifyUTF8(str, "ReqBody.city");
-          #endif  // !NDEBUG
+          CHK_(::_pbi::VerifyUTF8(str, "Flee.ReqBody.city"));
         } else
           goto handle_unusual;
         continue;
@@ -846,7 +846,7 @@ const char* ReqBody::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
         } else
           goto handle_unusual;
         continue;
-      // optional .QueryUinPackageUsageReq queryUinPackageUsageReq = 101;
+      // optional .Flee.QueryUinPackageUsageReq queryUinPackageUsageReq = 101;
       case 101:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_queryuinpackageusagereq(), ptr);
@@ -880,11 +880,11 @@ failure:
 
 uint8_t* ReqBody::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:ReqBody)
+  // @@protoc_insertion_point(serialize_to_array_start:Flee.ReqBody)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .ConfigSeq configList = 1;
+  // repeated .Flee.ConfigSeq configList = 1;
   for (unsigned i = 0,
       n = static_cast<unsigned>(this->_internal_configlist_size()); i < n; i++) {
     const auto& repfield = this->_internal_configlist(i);
@@ -892,45 +892,44 @@ uint8_t* ReqBody::_InternalSerialize(
         InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
   }
 
-  cached_has_bits = _impl_._has_bits_[0];
   // optional string info = 3;
-  if (cached_has_bits & 0x00000001u) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+  if (_internal_has_info()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_info().data(), static_cast<int>(this->_internal_info().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
-      "ReqBody.info");
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Flee.ReqBody.info");
     target = stream->WriteStringMaybeAliased(
         3, this->_internal_info(), target);
   }
 
   // optional string province = 4;
-  if (cached_has_bits & 0x00000002u) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+  if (_internal_has_province()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_province().data(), static_cast<int>(this->_internal_province().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
-      "ReqBody.province");
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Flee.ReqBody.province");
     target = stream->WriteStringMaybeAliased(
         4, this->_internal_province(), target);
   }
 
   // optional string city = 5;
-  if (cached_has_bits & 0x00000004u) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+  if (_internal_has_city()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_city().data(), static_cast<int>(this->_internal_city().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
-      "ReqBody.city");
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "Flee.ReqBody.city");
     target = stream->WriteStringMaybeAliased(
         5, this->_internal_city(), target);
   }
 
   // optional int32 reqDebugMsg = 6;
-  if (cached_has_bits & 0x00000010u) {
+  if (_internal_has_reqdebugmsg()) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(6, this->_internal_reqdebugmsg(), target);
   }
 
-  // optional .QueryUinPackageUsageReq queryUinPackageUsageReq = 101;
-  if (cached_has_bits & 0x00000008u) {
+  // optional .Flee.QueryUinPackageUsageReq queryUinPackageUsageReq = 101;
+  if (_internal_has_queryuinpackageusagereq()) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(101, _Internal::queryuinpackageusagereq(this),
         _Internal::queryuinpackageusagereq(this).GetCachedSize(), target, stream);
@@ -940,19 +939,19 @@ uint8_t* ReqBody::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:ReqBody)
+  // @@protoc_insertion_point(serialize_to_array_end:Flee.ReqBody)
   return target;
 }
 
 size_t ReqBody::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:ReqBody)
+// @@protoc_insertion_point(message_byte_size_start:Flee.ReqBody)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .ConfigSeq configList = 1;
+  // repeated .Flee.ConfigSeq configList = 1;
   total_size += 1UL * this->_internal_configlist_size();
   for (const auto& msg : this->_impl_.configlist_) {
     total_size +=
@@ -982,7 +981,7 @@ size_t ReqBody::ByteSizeLong() const {
           this->_internal_city());
     }
 
-    // optional .QueryUinPackageUsageReq queryUinPackageUsageReq = 101;
+    // optional .Flee.QueryUinPackageUsageReq queryUinPackageUsageReq = 101;
     if (cached_has_bits & 0x00000008u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -1008,7 +1007,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ReqBody::GetClassData() const 
 void ReqBody::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<ReqBody*>(&to_msg);
   auto& from = static_cast<const ReqBody&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ReqBody)
+  // @@protoc_insertion_point(class_specific_merge_from_start:Flee.ReqBody)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1026,7 +1025,7 @@ void ReqBody::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOB
       _this->_internal_set_city(from._internal_city());
     }
     if (cached_has_bits & 0x00000008u) {
-      _this->_internal_mutable_queryuinpackageusagereq()->::QueryUinPackageUsageReq::MergeFrom(
+      _this->_internal_mutable_queryuinpackageusagereq()->::Flee::QueryUinPackageUsageReq::MergeFrom(
           from._internal_queryuinpackageusagereq());
     }
     if (cached_has_bits & 0x00000010u) {
@@ -1038,7 +1037,7 @@ void ReqBody::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOB
 }
 
 void ReqBody::CopyFrom(const ReqBody& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ReqBody)
+// @@protoc_insertion_point(class_specific_copy_from_start:Flee.ReqBody)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1082,18 +1081,19 @@ void ReqBody::InternalSwap(ReqBody* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace Flee
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::ConfigSeq*
-Arena::CreateMaybeMessage< ::ConfigSeq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ConfigSeq >(arena);
+template<> PROTOBUF_NOINLINE ::Flee::ConfigSeq*
+Arena::CreateMaybeMessage< ::Flee::ConfigSeq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Flee::ConfigSeq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::QueryUinPackageUsageReq*
-Arena::CreateMaybeMessage< ::QueryUinPackageUsageReq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::QueryUinPackageUsageReq >(arena);
+template<> PROTOBUF_NOINLINE ::Flee::QueryUinPackageUsageReq*
+Arena::CreateMaybeMessage< ::Flee::QueryUinPackageUsageReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Flee::QueryUinPackageUsageReq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::ReqBody*
-Arena::CreateMaybeMessage< ::ReqBody >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ReqBody >(arena);
+template<> PROTOBUF_NOINLINE ::Flee::ReqBody*
+Arena::CreateMaybeMessage< ::Flee::ReqBody >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Flee::ReqBody >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

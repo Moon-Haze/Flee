@@ -1,12 +1,16 @@
+/*
+ * @Author: Moon-Haze swx1126200515@outlook.com
+ * @Date: 2023-01-24 20:42
+ * @LastEditors: Moon-Haze swx1126200515@outlook.com
+ * @LastEditTime: 2023-02-10 16:01
+ * @FilePath: \Flee\include\code\QQConfig.h
+ * @Description:
+ */
 #ifndef FLEE_QQCONFIG_H
 #define FLEE_QQCONFIG_H
 
-#include "AccountSecrets.h"
 #include "ByteArray.h"
 #include "QQProtocol.h"
-#include "constants.h"
-#include "device.h"
-
 #include <cstdint>
 #include <string>
 
@@ -16,12 +20,15 @@ class QQConfig {
 private:
     /* data */
     std::string dir;
+    std::string log_dir;
+    std::string data_dir;
+    std::string device_dir;
 
 public:
     Platform platform = Platform::Android;
 
 public:
-    explicit QQConfig(const std::string& dir = "./");
+    explicit QQConfig(uint64_t uin, const std::string& dir = "./");
 
     QQConfig(const QQConfig& other);
     /**
@@ -29,7 +36,7 @@ public:
      *
      * @return std::string
      */
-    std::string getDir() const;
+    const std::string& getDir() const;
     /**
      * @brief Set the Dir object
      *
@@ -37,39 +44,36 @@ public:
      */
     void setDir(const std::string& dir);
 
-    ~QQConfig();
+    const std::string& getLogDir() const;
+
+    const std::string& getDataDir() const;
+
+    const std::string& getDeviceDir() const;
 };
 
-/**
- * @brief QQ账户的所有存储信息
- *
- */
-class QQInfo {
-    uint64_t  uin;
-    ByteArray password;
+template <typename T = uint16_t>
+class DataPacket {
+    /* data */
+    ByteArray data;
+    T         offset;
 
 public:
-    QQConfig       config;
-    AccountSecrets secrets;
-    APK            apk;
-    Device         device;
+    DataPacket(const ByteArray& data, T offset = 0);
 
-    explicit QQInfo(uint32_t uin, QQConfig config)
-        : config(std::move(config)),
-          secrets(uin),
-          apk(APK::getApk(config.platform)),
-          device(std::move(Device::getDevice(config.getDir()))) {}
+    DataPacket(const std::string& data, T offset = 0);
 
-    explicit QQInfo(const QQInfo& other)
-        : config(other.config), secrets(other.secrets) {}
+    template <typename Z>
+    DataPacket(Z data, T offset = 0)
+        : data(std::move(ByteArray::from<Z>(data))), offset(offset) {}
 
-    uint64_t getUin() const { return uin; }
-
-    void setPassword(const ByteArray& value) { password = value; }
-
-    void setPassword(const std::string& value) { password = md5(value); }
-
-    ByteArray getPassword() const { return password; }
+    T                getOffset() const;
+    const ByteArray& getData() const;
 };
+
+template <typename T>
+ByteArray& operator<<(ByteArray& array, const DataPacket<T>& packet);
+
+#define DataPacketWithLength(data) DataPacket<uint32_t>(data, 4)
+
 };     // namespace Flee
 #endif // FLEE_QQCONFIG_H

@@ -44,17 +44,20 @@ struct TableStruct_DevInfo_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_DevInfo_2eproto;
+namespace Flee {
 class DevInfo;
 struct DevInfoDefaultTypeInternal;
 extern DevInfoDefaultTypeInternal _DevInfo_default_instance_;
+}  // namespace Flee
 PROTOBUF_NAMESPACE_OPEN
-template<> ::DevInfo* Arena::CreateMaybeMessage<::DevInfo>(Arena*);
+template<> ::Flee::DevInfo* Arena::CreateMaybeMessage<::Flee::DevInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace Flee {
 
 // ===================================================================
 
 class DevInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:DevInfo) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Flee.DevInfo) */ {
  public:
   inline DevInfo() : DevInfo(nullptr) {}
   ~DevInfo() override;
@@ -82,13 +85,6 @@ class DevInfo final :
       CopyFrom(from);
     }
     return *this;
-  }
-
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
   }
 
   static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
@@ -164,7 +160,7 @@ class DevInfo final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "DevInfo";
+    return "Flee.DevInfo";
   }
   protected:
   explicit DevInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -353,7 +349,7 @@ class DevInfo final :
   std::string* _internal_mutable_innerversion();
   public:
 
-  // @@protoc_insertion_point(class_scope:DevInfo)
+  // @@protoc_insertion_point(class_scope:Flee.DevInfo)
  private:
   class _Internal;
 
@@ -400,7 +396,7 @@ inline void DevInfo::clear_bootloader() {
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& DevInfo::bootloader() const {
-  // @@protoc_insertion_point(field_get:DevInfo.bootloader)
+  // @@protoc_insertion_point(field_get:Flee.DevInfo.bootloader)
   return _internal_bootloader();
 }
 template <typename ArgT0, typename... ArgT>
@@ -408,11 +404,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void DevInfo::set_bootloader(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
  _impl_.bootloader_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:DevInfo.bootloader)
+  // @@protoc_insertion_point(field_set:Flee.DevInfo.bootloader)
 }
 inline std::string* DevInfo::mutable_bootloader() {
   std::string* _s = _internal_mutable_bootloader();
-  // @@protoc_insertion_point(field_mutable:DevInfo.bootloader)
+  // @@protoc_insertion_point(field_mutable:Flee.DevInfo.bootloader)
   return _s;
 }
 inline const std::string& DevInfo::_internal_bootloader() const {
@@ -427,7 +423,7 @@ inline std::string* DevInfo::_internal_mutable_bootloader() {
   return _impl_.bootloader_.Mutable(GetArenaForAllocation());
 }
 inline std::string* DevInfo::release_bootloader() {
-  // @@protoc_insertion_point(field_release:DevInfo.bootloader)
+  // @@protoc_insertion_point(field_release:Flee.DevInfo.bootloader)
   if (!_internal_has_bootloader()) {
     return nullptr;
   }
@@ -452,7 +448,7 @@ inline void DevInfo::set_allocated_bootloader(std::string* bootloader) {
     _impl_.bootloader_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:DevInfo.bootloader)
+  // @@protoc_insertion_point(field_set_allocated:Flee.DevInfo.bootloader)
 }
 
 // optional bytes procVersion = 2;
@@ -468,7 +464,7 @@ inline void DevInfo::clear_procversion() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline const std::string& DevInfo::procversion() const {
-  // @@protoc_insertion_point(field_get:DevInfo.procVersion)
+  // @@protoc_insertion_point(field_get:Flee.DevInfo.procVersion)
   return _internal_procversion();
 }
 template <typename ArgT0, typename... ArgT>
@@ -476,11 +472,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void DevInfo::set_procversion(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000002u;
  _impl_.procversion_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:DevInfo.procVersion)
+  // @@protoc_insertion_point(field_set:Flee.DevInfo.procVersion)
 }
 inline std::string* DevInfo::mutable_procversion() {
   std::string* _s = _internal_mutable_procversion();
-  // @@protoc_insertion_point(field_mutable:DevInfo.procVersion)
+  // @@protoc_insertion_point(field_mutable:Flee.DevInfo.procVersion)
   return _s;
 }
 inline const std::string& DevInfo::_internal_procversion() const {
@@ -495,7 +491,7 @@ inline std::string* DevInfo::_internal_mutable_procversion() {
   return _impl_.procversion_.Mutable(GetArenaForAllocation());
 }
 inline std::string* DevInfo::release_procversion() {
-  // @@protoc_insertion_point(field_release:DevInfo.procVersion)
+  // @@protoc_insertion_point(field_release:Flee.DevInfo.procVersion)
   if (!_internal_has_procversion()) {
     return nullptr;
   }
@@ -520,7 +516,7 @@ inline void DevInfo::set_allocated_procversion(std::string* procversion) {
     _impl_.procversion_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:DevInfo.procVersion)
+  // @@protoc_insertion_point(field_set_allocated:Flee.DevInfo.procVersion)
 }
 
 // optional bytes codename = 3;
@@ -536,7 +532,7 @@ inline void DevInfo::clear_codename() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline const std::string& DevInfo::codename() const {
-  // @@protoc_insertion_point(field_get:DevInfo.codename)
+  // @@protoc_insertion_point(field_get:Flee.DevInfo.codename)
   return _internal_codename();
 }
 template <typename ArgT0, typename... ArgT>
@@ -544,11 +540,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void DevInfo::set_codename(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000004u;
  _impl_.codename_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:DevInfo.codename)
+  // @@protoc_insertion_point(field_set:Flee.DevInfo.codename)
 }
 inline std::string* DevInfo::mutable_codename() {
   std::string* _s = _internal_mutable_codename();
-  // @@protoc_insertion_point(field_mutable:DevInfo.codename)
+  // @@protoc_insertion_point(field_mutable:Flee.DevInfo.codename)
   return _s;
 }
 inline const std::string& DevInfo::_internal_codename() const {
@@ -563,7 +559,7 @@ inline std::string* DevInfo::_internal_mutable_codename() {
   return _impl_.codename_.Mutable(GetArenaForAllocation());
 }
 inline std::string* DevInfo::release_codename() {
-  // @@protoc_insertion_point(field_release:DevInfo.codename)
+  // @@protoc_insertion_point(field_release:Flee.DevInfo.codename)
   if (!_internal_has_codename()) {
     return nullptr;
   }
@@ -588,7 +584,7 @@ inline void DevInfo::set_allocated_codename(std::string* codename) {
     _impl_.codename_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:DevInfo.codename)
+  // @@protoc_insertion_point(field_set_allocated:Flee.DevInfo.codename)
 }
 
 // optional bytes incremental = 4;
@@ -604,7 +600,7 @@ inline void DevInfo::clear_incremental() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline const std::string& DevInfo::incremental() const {
-  // @@protoc_insertion_point(field_get:DevInfo.incremental)
+  // @@protoc_insertion_point(field_get:Flee.DevInfo.incremental)
   return _internal_incremental();
 }
 template <typename ArgT0, typename... ArgT>
@@ -612,11 +608,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void DevInfo::set_incremental(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000008u;
  _impl_.incremental_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:DevInfo.incremental)
+  // @@protoc_insertion_point(field_set:Flee.DevInfo.incremental)
 }
 inline std::string* DevInfo::mutable_incremental() {
   std::string* _s = _internal_mutable_incremental();
-  // @@protoc_insertion_point(field_mutable:DevInfo.incremental)
+  // @@protoc_insertion_point(field_mutable:Flee.DevInfo.incremental)
   return _s;
 }
 inline const std::string& DevInfo::_internal_incremental() const {
@@ -631,7 +627,7 @@ inline std::string* DevInfo::_internal_mutable_incremental() {
   return _impl_.incremental_.Mutable(GetArenaForAllocation());
 }
 inline std::string* DevInfo::release_incremental() {
-  // @@protoc_insertion_point(field_release:DevInfo.incremental)
+  // @@protoc_insertion_point(field_release:Flee.DevInfo.incremental)
   if (!_internal_has_incremental()) {
     return nullptr;
   }
@@ -656,7 +652,7 @@ inline void DevInfo::set_allocated_incremental(std::string* incremental) {
     _impl_.incremental_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:DevInfo.incremental)
+  // @@protoc_insertion_point(field_set_allocated:Flee.DevInfo.incremental)
 }
 
 // optional bytes fingerprint = 5;
@@ -672,7 +668,7 @@ inline void DevInfo::clear_fingerprint() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline const std::string& DevInfo::fingerprint() const {
-  // @@protoc_insertion_point(field_get:DevInfo.fingerprint)
+  // @@protoc_insertion_point(field_get:Flee.DevInfo.fingerprint)
   return _internal_fingerprint();
 }
 template <typename ArgT0, typename... ArgT>
@@ -680,11 +676,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void DevInfo::set_fingerprint(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000010u;
  _impl_.fingerprint_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:DevInfo.fingerprint)
+  // @@protoc_insertion_point(field_set:Flee.DevInfo.fingerprint)
 }
 inline std::string* DevInfo::mutable_fingerprint() {
   std::string* _s = _internal_mutable_fingerprint();
-  // @@protoc_insertion_point(field_mutable:DevInfo.fingerprint)
+  // @@protoc_insertion_point(field_mutable:Flee.DevInfo.fingerprint)
   return _s;
 }
 inline const std::string& DevInfo::_internal_fingerprint() const {
@@ -699,7 +695,7 @@ inline std::string* DevInfo::_internal_mutable_fingerprint() {
   return _impl_.fingerprint_.Mutable(GetArenaForAllocation());
 }
 inline std::string* DevInfo::release_fingerprint() {
-  // @@protoc_insertion_point(field_release:DevInfo.fingerprint)
+  // @@protoc_insertion_point(field_release:Flee.DevInfo.fingerprint)
   if (!_internal_has_fingerprint()) {
     return nullptr;
   }
@@ -724,7 +720,7 @@ inline void DevInfo::set_allocated_fingerprint(std::string* fingerprint) {
     _impl_.fingerprint_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:DevInfo.fingerprint)
+  // @@protoc_insertion_point(field_set_allocated:Flee.DevInfo.fingerprint)
 }
 
 // optional bytes bootId = 6;
@@ -740,7 +736,7 @@ inline void DevInfo::clear_bootid() {
   _impl_._has_bits_[0] &= ~0x00000020u;
 }
 inline const std::string& DevInfo::bootid() const {
-  // @@protoc_insertion_point(field_get:DevInfo.bootId)
+  // @@protoc_insertion_point(field_get:Flee.DevInfo.bootId)
   return _internal_bootid();
 }
 template <typename ArgT0, typename... ArgT>
@@ -748,11 +744,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void DevInfo::set_bootid(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000020u;
  _impl_.bootid_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:DevInfo.bootId)
+  // @@protoc_insertion_point(field_set:Flee.DevInfo.bootId)
 }
 inline std::string* DevInfo::mutable_bootid() {
   std::string* _s = _internal_mutable_bootid();
-  // @@protoc_insertion_point(field_mutable:DevInfo.bootId)
+  // @@protoc_insertion_point(field_mutable:Flee.DevInfo.bootId)
   return _s;
 }
 inline const std::string& DevInfo::_internal_bootid() const {
@@ -767,7 +763,7 @@ inline std::string* DevInfo::_internal_mutable_bootid() {
   return _impl_.bootid_.Mutable(GetArenaForAllocation());
 }
 inline std::string* DevInfo::release_bootid() {
-  // @@protoc_insertion_point(field_release:DevInfo.bootId)
+  // @@protoc_insertion_point(field_release:Flee.DevInfo.bootId)
   if (!_internal_has_bootid()) {
     return nullptr;
   }
@@ -792,7 +788,7 @@ inline void DevInfo::set_allocated_bootid(std::string* bootid) {
     _impl_.bootid_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:DevInfo.bootId)
+  // @@protoc_insertion_point(field_set_allocated:Flee.DevInfo.bootId)
 }
 
 // optional bytes androidId = 7;
@@ -808,7 +804,7 @@ inline void DevInfo::clear_androidid() {
   _impl_._has_bits_[0] &= ~0x00000040u;
 }
 inline const std::string& DevInfo::androidid() const {
-  // @@protoc_insertion_point(field_get:DevInfo.androidId)
+  // @@protoc_insertion_point(field_get:Flee.DevInfo.androidId)
   return _internal_androidid();
 }
 template <typename ArgT0, typename... ArgT>
@@ -816,11 +812,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void DevInfo::set_androidid(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000040u;
  _impl_.androidid_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:DevInfo.androidId)
+  // @@protoc_insertion_point(field_set:Flee.DevInfo.androidId)
 }
 inline std::string* DevInfo::mutable_androidid() {
   std::string* _s = _internal_mutable_androidid();
-  // @@protoc_insertion_point(field_mutable:DevInfo.androidId)
+  // @@protoc_insertion_point(field_mutable:Flee.DevInfo.androidId)
   return _s;
 }
 inline const std::string& DevInfo::_internal_androidid() const {
@@ -835,7 +831,7 @@ inline std::string* DevInfo::_internal_mutable_androidid() {
   return _impl_.androidid_.Mutable(GetArenaForAllocation());
 }
 inline std::string* DevInfo::release_androidid() {
-  // @@protoc_insertion_point(field_release:DevInfo.androidId)
+  // @@protoc_insertion_point(field_release:Flee.DevInfo.androidId)
   if (!_internal_has_androidid()) {
     return nullptr;
   }
@@ -860,7 +856,7 @@ inline void DevInfo::set_allocated_androidid(std::string* androidid) {
     _impl_.androidid_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:DevInfo.androidId)
+  // @@protoc_insertion_point(field_set_allocated:Flee.DevInfo.androidId)
 }
 
 // optional bytes baseBand = 8;
@@ -876,7 +872,7 @@ inline void DevInfo::clear_baseband() {
   _impl_._has_bits_[0] &= ~0x00000080u;
 }
 inline const std::string& DevInfo::baseband() const {
-  // @@protoc_insertion_point(field_get:DevInfo.baseBand)
+  // @@protoc_insertion_point(field_get:Flee.DevInfo.baseBand)
   return _internal_baseband();
 }
 template <typename ArgT0, typename... ArgT>
@@ -884,11 +880,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void DevInfo::set_baseband(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000080u;
  _impl_.baseband_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:DevInfo.baseBand)
+  // @@protoc_insertion_point(field_set:Flee.DevInfo.baseBand)
 }
 inline std::string* DevInfo::mutable_baseband() {
   std::string* _s = _internal_mutable_baseband();
-  // @@protoc_insertion_point(field_mutable:DevInfo.baseBand)
+  // @@protoc_insertion_point(field_mutable:Flee.DevInfo.baseBand)
   return _s;
 }
 inline const std::string& DevInfo::_internal_baseband() const {
@@ -903,7 +899,7 @@ inline std::string* DevInfo::_internal_mutable_baseband() {
   return _impl_.baseband_.Mutable(GetArenaForAllocation());
 }
 inline std::string* DevInfo::release_baseband() {
-  // @@protoc_insertion_point(field_release:DevInfo.baseBand)
+  // @@protoc_insertion_point(field_release:Flee.DevInfo.baseBand)
   if (!_internal_has_baseband()) {
     return nullptr;
   }
@@ -928,7 +924,7 @@ inline void DevInfo::set_allocated_baseband(std::string* baseband) {
     _impl_.baseband_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:DevInfo.baseBand)
+  // @@protoc_insertion_point(field_set_allocated:Flee.DevInfo.baseBand)
 }
 
 // optional bytes innerVersion = 9;
@@ -944,7 +940,7 @@ inline void DevInfo::clear_innerversion() {
   _impl_._has_bits_[0] &= ~0x00000100u;
 }
 inline const std::string& DevInfo::innerversion() const {
-  // @@protoc_insertion_point(field_get:DevInfo.innerVersion)
+  // @@protoc_insertion_point(field_get:Flee.DevInfo.innerVersion)
   return _internal_innerversion();
 }
 template <typename ArgT0, typename... ArgT>
@@ -952,11 +948,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void DevInfo::set_innerversion(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000100u;
  _impl_.innerversion_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:DevInfo.innerVersion)
+  // @@protoc_insertion_point(field_set:Flee.DevInfo.innerVersion)
 }
 inline std::string* DevInfo::mutable_innerversion() {
   std::string* _s = _internal_mutable_innerversion();
-  // @@protoc_insertion_point(field_mutable:DevInfo.innerVersion)
+  // @@protoc_insertion_point(field_mutable:Flee.DevInfo.innerVersion)
   return _s;
 }
 inline const std::string& DevInfo::_internal_innerversion() const {
@@ -971,7 +967,7 @@ inline std::string* DevInfo::_internal_mutable_innerversion() {
   return _impl_.innerversion_.Mutable(GetArenaForAllocation());
 }
 inline std::string* DevInfo::release_innerversion() {
-  // @@protoc_insertion_point(field_release:DevInfo.innerVersion)
+  // @@protoc_insertion_point(field_release:Flee.DevInfo.innerVersion)
   if (!_internal_has_innerversion()) {
     return nullptr;
   }
@@ -996,7 +992,7 @@ inline void DevInfo::set_allocated_innerversion(std::string* innerversion) {
     _impl_.innerversion_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:DevInfo.innerVersion)
+  // @@protoc_insertion_point(field_set_allocated:Flee.DevInfo.innerVersion)
 }
 
 #ifdef __GNUC__
@@ -1005,6 +1001,7 @@ inline void DevInfo::set_allocated_innerversion(std::string* innerversion) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace Flee
 
 // @@protoc_insertion_point(global_scope)
 

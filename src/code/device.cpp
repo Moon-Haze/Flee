@@ -1,6 +1,8 @@
+
 #include "device.h"
 #include "ByteArray.h"
-#include "JsonException.h"
+#include "ParsingException.h"
+
 #include <cstddef>
 #include <fstream>
 #include <iostream>
@@ -16,8 +18,9 @@ namespace Flee {
 Device Device::getDevice(const std::string& filename) {
     if(!filename.empty()) {
         std::ifstream file(filename);
+        spdlog::info("Device's file name is {}", filename);
         if(!file.is_open()) {
-            spdlog::warn("Failed to open file {}\n", filename);
+            spdlog::warn("Failed to open file {} in {}", filename, __FILE_NAME__);
         } else {
             std::string json_data((std::istreambuf_iterator<char>(file)),
                                   std::istreambuf_iterator<char>());
@@ -28,12 +31,11 @@ Device Device::getDevice(const std::string& filename) {
 
             std::unique_ptr<Json::CharReader> const jsonReader(
                 readerBuilder.newCharReader());
-            auto res = jsonReader->parse(json_data.c_str(),
-                                         json_data.c_str() + json_data.length(),
-                                         &root, &errs);
-            if(!res || filename.empty()) {
-                spdlog::warn("Failed to parse JSON data from file {}\n",
-                             filename);
+            auto res =
+                jsonReader->parse(json_data.c_str(),
+                                  json_data.c_str() + json_data.length(), &root, &errs);
+            if(!res) {
+                spdlog::warn("Failed to parse JSON data from file {}\n", filename);
             } else {
                 /***
                  * "product": "MRS4S",
@@ -51,30 +53,26 @@ Device Device::getDevice(const std::string& filename) {
                  * "353301082446845", "incremental": 497692945,
                  */
                 return Device(
-                    root["product"].as<ByteArray>(),
-                    root["device"].as<ByteArray>(),
-                    root["board"].as<ByteArray>(),
-                    root["brand"].as<ByteArray>(),
-                    root["model"].as<ByteArray>(),
-                    root["wifi_ssid"].as<ByteArray>(),
+                    root["product"].as<ByteArray>(), root["device"].as<ByteArray>(),
+                    root["board"].as<ByteArray>(), root["brand"].as<ByteArray>(),
+                    root["model"].as<ByteArray>(), root["wifi_ssid"].as<ByteArray>(),
                     root["bootloader"].as<ByteArray>(),
-                    root["android_id"].as<ByteArray>(),
-                    root["boot_id"].as<ByteArray>(),
+                    root["android_id"].as<ByteArray>(), root["boot_id"].as<ByteArray>(),
                     root["proc_version"].as<ByteArray>(),
                     root["mac_address"].as<ByteArray>(),
                     root["ip_address"].as<ByteArray>(), root["imei"].asString(),
-                    toByteArray(std::to_string(root["incremental"].asUInt())));
+                    ByteArray::from(std::to_string(root["incremental"].asUInt())));
             }
         }
     }
     return Device();
 }
 
-Device::Device(ByteArray product, ByteArray device, ByteArray board,
-               ByteArray brand, ByteArray model, ByteArray wifi_ssid,
-               ByteArray bootloader, ByteArray android_id, ByteArray boot_id,
-               ByteArray proc_version, ByteArray mac_address,
-               ByteArray ip_address, std::string imei, ByteArray incremental)
+Device::Device(ByteArray product, ByteArray device, ByteArray board, ByteArray brand,
+               ByteArray model, ByteArray wifi_ssid, ByteArray bootloader,
+               ByteArray android_id, ByteArray boot_id, ByteArray proc_version,
+               ByteArray mac_address, ByteArray ip_address, std::string imei,
+               ByteArray incremental)
     : product(std::move(product)),
       device(std::move(device)),
       board(std::move(board)),
@@ -124,13 +122,11 @@ std::istream& operator>>(std::istream& stream, Device& info) {
     Json::Value             root;
     Json::CharReaderBuilder readerBuilder;
 
-    std::unique_ptr<Json::CharReader> const jsonReader(
-        readerBuilder.newCharReader());
-    auto res =
-        jsonReader->parse(json_data.c_str(),
-                          json_data.c_str() + json_data.length(), &root, &errs);
+    std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
+    auto                                    res = jsonReader->parse(json_data.c_str(),
+                                                                    json_data.c_str() + json_data.length(), &root, &errs);
     if(!res) {
-        throw JSONException("Error parsing JSON.");
+        throw ParsingException("Error parsing JSON.", ParsingException::JsonError);
     } else {
         try {
             info.product      = std::move(root["product"].as<ByteArray>());
@@ -148,13 +144,12 @@ std::istream& operator>>(std::istream& stream, Device& info) {
 
             if(root["incremental"].isString()) {
                 info.version.incremental = std::move(
-                    toByteArray(std::string(root["incremental"].asString())));
+                    ByteArray::from(std::string(root["incremental"].asString())));
             } else if(root["incremental"].isNumeric()) {
-                info.version.incremental = std::move(Flee::toByteArray(
-                    std::to_string(root["incremental"].asUInt())));
+                info.version.incremental = std::move(
+                    ByteArray::from(std::to_string(root["incremental"].asUInt())));
             }
-        }
-        catch(std::exception) {
+        } catch(std::exception) {
             spdlog::warn("try to move");
         }
     }
@@ -180,28 +175,25 @@ std::ostream& operator<<(std::ostream& stream, const Device& info) {
          *
          */
         Json::Value root;
-        root["product"]      = ByteArrayTo<std::string>(info.product);
-        root["device"]       = ByteArrayTo<std::string>(info.device);
-        root["board"]        = ByteArrayTo<std::string>(info.board);
-        root["brand"]        = ByteArrayTo<std::string>(info.brand);
-        root["model"]        = ByteArrayTo<std::string>(info.model);
-        root["wifi_ssid"]    = ByteArrayTo<std::string>(info.wifi_ssid);
-        root["bootloader"]   = ByteArrayTo<std::string>(info.bootloader);
-        root["android_id"]   = ByteArrayTo<std::string>(info.android_id);
-        root["boot_id"]      = ByteArrayTo<std::string>(info.boot_id);
-        root["proc_version"] = ByteArrayTo<std::string>(info.proc_version);
-        root["mac_address"]  = ByteArrayTo<std::string>(info.mac_address);
+        root["product"]      = info.product.to<std::string>();
+        root["device"]       = info.device.to<std::string>();
+        root["board"]        = info.board.to<std::string>();
+        root["brand"]        = info.brand.to<std::string>();
+        root["model"]        = info.model.to<std::string>();
+        root["wifi_ssid"]    = info.wifi_ssid.to<std::string>();
+        root["bootloader"]   = info.bootloader.to<std::string>();
+        root["android_id"]   = info.android_id.to<std::string>();
+        root["boot_id"]      = info.boot_id.to<std::string>();
+        root["proc_version"] = info.proc_version.to<std::string>();
+        root["mac_address"]  = info.mac_address.to<std::string>();
         root["imei"]         = info.imei;
-        root["incremental"] =
-            std::stoi(ByteArrayTo<std::string>(info.version.incremental));
+        root["incremental"]  = std::stoi(info.version.incremental.to<std::string>());
         // 创建一个 Json::StyledWriter 对象
         Json::StreamWriterBuilder           writerBuilder;
-        std::unique_ptr<Json::StreamWriter> jsonWriter(
-            writerBuilder.newStreamWriter());
+        std::unique_ptr<Json::StreamWriter> jsonWriter(writerBuilder.newStreamWriter());
         // 将 Json::Value 对象转换为字符串
         jsonWriter->write(root, &stream);
-    }
-    catch(std::exception except) {
+    } catch(std::exception except) {
         spdlog::warn("Failed to {}", except.what());
     }
     return stream;

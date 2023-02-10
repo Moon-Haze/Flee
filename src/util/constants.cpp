@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "ByteArray.h"
 #include <cstdint>
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
@@ -27,8 +28,7 @@ std::string getRandom(int length, std::string seed) {
 ByteArray getRandomByteArray(size_t length) {
     ByteArray byteArray;
     for(int i = 0; i < length; i++) {
-        byteArray.push_back(
-            static_cast<std::byte>(getRandomNumber(0, UCHAR_MAX)));
+        byteArray.push_back(static_cast<std::byte>(getRandomNumber(0, UCHAR_MAX)));
     }
     return std::move(byteArray);
 }
@@ -68,8 +68,7 @@ int64_t currentTimeMillis() {
     auto        now    = std::chrono::system_clock::now();
     std::time_t now_c  = std::chrono::system_clock::to_time_t(now);
     std::tm     now_tm = *std::localtime(&now_c);
-    return std::chrono::duration_cast<std::chrono::milliseconds>(
-               now.time_since_epoch())
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch())
         .count();
 }
 
@@ -81,11 +80,11 @@ ByteArray md5(const std::string& input) {
         hash_md5.Update(reinterpret_cast<const CryptoPP::byte*>(input.data()),
                         input.size());
         // 计算哈希值
-        std::vector<std::byte> digest(CryptoPP::Weak1::MD5::DIGESTSIZE);
+        ByteArray digest(CryptoPP::Weak1::MD5::DIGESTSIZE);
         hash_md5.Final(reinterpret_cast<CryptoPP::byte*>(digest.data()));
         return std::move(digest);
     }
-    return std::move(ByteArray_0);
+    return std::move(ByteArray());
 }
 
 ByteArray md5(const ByteArray& input) {
@@ -96,10 +95,10 @@ ByteArray md5(const ByteArray& input) {
         hash_md5.Update(reinterpret_cast<const CryptoPP::byte*>(input.data()),
                         input.size());
         // 计算哈希值
-        std::vector<std::byte> digest(CryptoPP::Weak1::MD5::DIGESTSIZE);
+        ByteArray digest(CryptoPP::Weak1::MD5::DIGESTSIZE);
         hash_md5.Final(reinterpret_cast<CryptoPP::byte*>(digest.data()));
         return std::move(digest);
     }
-    return std::move(ByteArray_0);
+    return std::move(ByteArray());
 }
 }; // namespace Flee

@@ -20,15 +20,15 @@ AlignTrailingComments:	true
 # 允许函数声明的所有参数在放在下一行
 AllowAllParametersOfDeclarationOnNextLine:	true
 # 允许短的块放在同一行
-AllowShortBlocksOnASingleLine:	true
+AllowShortBlocksOnASingleLine:	false
 # 允许短的case标签放在同一行
 AllowShortCaseLabelsOnASingleLine:	false
 # 允许短的函数放在同一行: None, InlineOnly(定义在类中), Empty(空函数), Inline(定义在类中，空函数), All
-AllowShortFunctionsOnASingleLine:	All
+AllowShortFunctionsOnASingleLine:	Empty
 # 允许短的if语句保持在同一行
 AllowShortIfStatementsOnASingleLine:	false
 # 允许短的循环保持在同一行
-AllowShortLoopsOnASingleLine:	false
+AllowShortLoopsOnASingleLine:	true
 # 总是在定义返回类型后换行(deprecated)
 AlwaysBreakAfterDefinitionReturnType:	None
 # 总是在返回类型后换行: None, All, TopLevel(顶级函数，不包括在类中的函数),
@@ -61,7 +61,7 @@ BraceWrapping:
   # union定义后面
   AfterUnion:	false
   # catch之前
-  BeforeCatch:	true
+  BeforeCatch:	false
   # else之前
   BeforeElse:	false
   # 缩进大括号
@@ -78,7 +78,7 @@ BreakBeforeTernaryOperators:	true
 # 在构造函数的初始化列表的逗号前换行
 BreakConstructorInitializersBeforeComma:	false
 # 每行字符的限制，0表示没有限制
-ColumnLimit:	80
+ColumnLimit:	88
 # 描述具有特殊意义的注释的正则表达式，它不应该被分割为多行或以其它方式改变
 CommentPragmas:	'^ IWYU pragma:'
 # 构造函数的初始化列表要么都在同一行，要么都各自一行

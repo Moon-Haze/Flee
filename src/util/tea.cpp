@@ -1,3 +1,12 @@
+/*
+ * @Author: Moon-Haze swx1126200515@outlook.com
+ * @Date: 2023-01-24 20:42
+ * @LastEditors: Moon-Haze swx1126200515@outlook.com
+ * @LastEditTime: 2023-02-06 23:49
+ * @FilePath: \Flee\src\util\tea.cpp
+ * @@Description::
+ */
+
 #include "tea.h"
 #include "constants.h"
 #include <assert.h>
@@ -26,10 +35,8 @@ Flee::ByteArray _encode(Flee::ByteArray value, const uint32_t key_0,
         tmpRight = right;
         for(int j = 0; j < time; j++) {
             sum = sum + DELTA & UINT32_MASK;
-            left +=
-                ((right << 4) + key_0) ^ (right + sum) ^ ((right >> 5) + key_1);
-            right +=
-                ((left << 4) + key_2) ^ (left + sum) ^ ((left >> 5) + key_3);
+            left += ((right << 4) + key_0) ^ (right + sum) ^ ((right >> 5) + key_1);
+            right += ((left << 4) + key_2) ^ (left + sum) ^ ((left >> 5) + key_3);
         }
         left ^= lastLeft0;
         right ^= lastRight0;
@@ -61,10 +68,8 @@ Flee::ByteArray _decode(Flee::ByteArray value, const uint32_t key_0,
         right ^= lastRight0;
 
         for(int j = 0; j < time; j++) {
-            right -=
-                ((left << 4) + key_2) ^ (left + sum) ^ ((left >> 5) + key_3);
-            left -=
-                ((right << 4) + key_0) ^ (right + sum) ^ ((right >> 5) + key_1);
+            right -= ((left << 4) + key_2) ^ (left + sum) ^ ((left >> 5) + key_3);
+            left -= ((right << 4) + key_0) ^ (right + sum) ^ ((right >> 5) + key_1);
             sum -= DELTA;
         }
 
@@ -96,17 +101,13 @@ ByteArray Tea::encrypt(ByteArray key, const ByteArray& value) {
 
     ByteArray useData;
     int       size = (value.size() + 10) % 8;
-    if(size != 0) {
-        size = 8 - size;
-    }
+    if(size != 0) { size = 8 - size; }
     useData << static_cast<std::byte>(getRandomInt() & 0xf8 | size);
     for(int i = 0; i < size + 2; i++) {
         useData << static_cast<std::byte>(getRandomInt() & 0xff);
     }
     useData << value;
-    for(int i = 0; i < 7; i++) {
-        useData << Byte(0x00);
-    }
+    for(int i = 0; i < 7; i++) { useData << Byte(0x00); }
     return _encode(useData, key_0, key_1, key_2, key_3);
 }
 
@@ -119,8 +120,7 @@ ByteArray Tea::decrypt(ByteArray key, const ByteArray& value) {
     key >> key_3;
     ByteArray data = _decode(value, key_0, key_1, key_2, key_3);
 
-    data.erase(data.begin(),
-               data.begin() + ((static_cast<char>(data.at(0)) & 7) + 3));
+    data.erase(data.begin(), data.begin() + ((static_cast<char>(data.at(0)) & 7) + 3));
     data.erase(data.end() - 7, data.end());
 
     return data;

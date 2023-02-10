@@ -1,4 +1,6 @@
-syntax = "proto2";
+syntax = "proto3";
+
+package Flee;
 
 message DevInfo {
   optional bytes bootloader = 1;

@@ -1,40 +1,50 @@
 #ifndef FLEE_PACKETLV_H
 #define FLEE_PACKETLV_H
 
+#include "AccountSecrets.h"
 #include "ByteArray.h"
-#include "QQConfig.h"
-
+#include "QQProtocol.h"
+#include "device.h"
 #include <map>
 
 namespace Flee {
 
-template <typename T = uint16_t>
-class DataPacket {
-    /* data */
-    ByteArray data;
-    T         offset;
+class QQPackTlv {
+private:
+    uint64_t  uin;
+    ByteArray password;
 
 public:
-    DataPacket(const ByteArray& data, T offset = 0);
-
-    DataPacket(const std::string& data, T offset = 0);
-
-    template <typename Z>
-    DataPacket(Z data, T offset = 0)
-        : data(std::move(toByteArray<Z>(data))), offset(offset) {}
-
-    T                getOffset() const;
-    const ByteArray& getData() const;
-};
-
-template <typename T>
-ByteArray& operator<<(ByteArray& array, const DataPacket<T>& packet);
-
-class PackTlv {
-    const QQInfo& info;
+    AccountSecrets sig;
+    APK            apk;
+    Device         device;
 
 public:
-    explicit PackTlv(const QQInfo& info);
+    explicit QQPackTlv(uint64_t uin, const Platform& platform,
+                       const std::string& device_file)
+        // : config(uin),
+        : sig(uin),
+          apk(APK::getApk(platform)),
+          device(std::move(Device::getDevice(device_file))) {}
+
+    explicit QQPackTlv(const QQPackTlv& other) : sig(other.sig) {}
+
+    uint64_t getUin() const {
+        return uin;
+    }
+
+    void setPassword(const ByteArray& value) {
+        password = value;
+    }
+
+    void setPassword(const std::string& value) {
+        password = md5(value);
+    }
+
+    ByteArray getPassword() const {
+        return password;
+    }
+
     ByteArray t01() const;
     ByteArray t08() const;
     ByteArray t16() const;

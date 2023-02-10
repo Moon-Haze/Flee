@@ -7,7 +7,7 @@ AccountSecrets::AccountSecrets(uint32_t uin) {
 }
 
 AccountSecrets::AccountSecrets(const AccountSecrets& other)
-    : seq(other.seq),
+    : seq(other.seq.load()),
       session(other.session),
       randkey(other.randkey),
       tgtgt(other.tgtgt),
@@ -22,4 +22,10 @@ AccountSecrets::AccountSecrets(const AccountSecrets& other)
       hb480(other.hb480),
       emp_time(other.emp_time),
       time_diff(other.time_diff) {}
+
+int16_t AccountSecrets::seq_pp() {
+    auto item = seq++;
+    seq &= 0x7fff;
+    return item;
+}
 }; // namespace Flee

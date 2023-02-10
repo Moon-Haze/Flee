@@ -9,16 +9,26 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/module ${CMAKE_MODULE_PATH
 include(CTest)
 enable_testing()
 
+add_compile_options(-std=c++17 -pthread)
+
 find_package(CryptoPP REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(Boost COMPONENTS system REQUIRED)
 
 include(cmake/ProtobufBuildCpp.cmake)
 
-set(REQUIRED_LIBS_QUALIFIED
+set(REQUIRED_LIBS_QUALIFIED  ws2_32
         ${PROTOBUF_LIBRARIES} ${PROTOBUF_PROTOC_LIBRARIES}
         ${CryptoPP_LIBRARIES} jsoncpp_lib spdlog::spdlog)
+
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    MESSAGE( STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}.")
+    list(APPEND REQUIRED_LIBS_QUALIFIED ${Boost_LIBRARIES})
+endif()
+
 
 include_directories(include/code)
 include_directories(include/exception)
@@ -30,26 +40,44 @@ include_directories(${JSON_INC_PATH})
 
 aux_source_directory(src/code CODE_CPP_FILE)
 aux_source_directory(src/util UTIL_CPP_FILE)
+aux_source_directory(src/exception EXCEPTION_CPP_FILE)
 
 # 生成 ***.proto 文件的 C++ 源代码
 protobuf_generate_cpp_to(PROTO_SRCS PROTO_HDRS proto)
 
-message("${PROTO_SRCS} ${PROTO_HDRS}")
+# message("${PROTO_SRCS} ${PROTO_HDRS}")
 
-set(All_CPP_FILES ${CODE_CPP_FILE} ${UTIL_CPP_FILE} ${PROTO_SRCS})
+set(All_CPP_FILES ${CODE_CPP_FILE} ${UTIL_CPP_FILE} ${EXCEPTION_CPP_FILE} ${PROTO_SRCS})
 # 链接所有代码
 add_library(${PROJECT_NAME} SHARED ${All_CPP_FILES})
 
 target_link_libraries(${PROJECT_NAME} ${REQUIRED_LIBS_QUALIFIED})
 
 # 设置测试文件
-aux_source_directory(./test TEST_FILE)
-add_executable(flee_test ${TEST_FILE})
+# 一般测试
+add_executable(flee_test ./test/Flee_test.cpp)
 target_link_libraries(flee_test
         ${REQUIRED_LIBS_QUALIFIED}
         ${PROJECT_NAME}
 )
-ADD_TEST(NAME flee_test_0_1 COMMAND flee_test)
+ADD_TEST(NAME Flee_Test COMMAND flee_test)
+
+# 网络测试
+add_executable(flee_net ./test/Flee_net.cpp)
+target_link_libraries(flee_net
+        ${REQUIRED_LIBS_QUALIFIED}
+        ${PROJECT_NAME}
+)
+ADD_TEST(NAME Flee_Net COMMAND flee_net)
+
+#Client测试
+add_executable(flee_client ./test/flee_client.cpp)
+target_link_libraries(flee_client
+        ${REQUIRED_LIBS_QUALIFIED}
+        ${PROJECT_NAME}
+)
+ADD_TEST(NAME Flee_Client COMMAND flee_client)
+
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

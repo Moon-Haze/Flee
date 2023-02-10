@@ -1,3 +1,11 @@
+/*
+ * @Author: Moon-Haze swx1126200515@outlook.com
+ * @Date: 2023-02-09 13:33
+ * @LastEditors: Moon-Haze swx1126200515@outlook.com
+ * @LastEditTime: 2023-02-09 20:03
+ * @FilePath: \Flee\include\code\ByteArray.h
+ * @Description:
+ */
 #ifndef FLEE_BYTEARRAY_H
 #define FLEE_BYTEARRAY_H
 
@@ -9,22 +17,65 @@
 #include <string>
 #include <vector>
 
-/*
-/usr/bin/g++ --driver-mode=g++ -DFMT_SHARED -DSPDLOG_COMPILED_LIB
--DSPDLOG_FMT_EXTERNAL -DSPDLOG_SHARED_LIB -Dflee_EXPORTS -
-I/mnt/c/Users/Moon/code/VSCodeProject/Flee/include/code
--I/mnt/c/Users/Moon/code/VSCodeProject/Flee/include/exception -
-I/mnt/c/Users/Moon/code/VSCodeProject/Flee/include/util -isystem
-/usr/include/jsoncpp -g -fPIC -c -x c++-header -std=gnu++17 -resource-
-dir=/usr/lib/llvm-14/lib/clang/14.0.6 --
-*/
-
 namespace Flee {
 
-using Byte      = std::byte;
-using ByteArray = std::vector<std::byte>;
+using Byte = std::byte;
 
-#define ByteArray_0 ByteArray(0, Byte(0x00))
+class ByteArray : public std::vector<Byte> {
+
+public:
+    ByteArray(std::size_t __n = 0);
+
+    ByteArray(const ByteArray& other);
+
+    ByteArray(ByteArray::const_iterator begin, ByteArray::const_iterator end);
+
+    ByteArray(std::initializer_list<std::byte> il);
+
+    template <typename T>
+    T to(size_t index = 0) const;
+
+    template <typename T>
+    T readTo(size_t index = 0);
+
+    ByteArray mid(size_t begin, size_t end) const;
+
+    ByteArray readByteArray(size_t begin, size_t end);
+
+    /**
+     * @brief
+     *
+     * @param end_index
+     */
+    iterator discardExact(size_t end_index);
+    /**
+     * @brief
+     *
+     * @return std::string
+     */
+    std::string toHex() const;
+
+    /**
+     * @brief 读取Hex进制字符串的数据，存储在ByteArray中
+     *
+     * @param hex Hex进制字符串
+     * @return ByteArray Hex进制的数据
+     */
+    static ByteArray fromHex(std::string hex);
+
+    /**
+     * @brief 从不同的数据类型读取数据
+     *
+     * @tparam T
+     * @param value
+     * @return ByteArray
+     */
+    template <typename T>
+    static ByteArray from(const T& value);
+};
+
+template <>
+std::string ByteArray::to<std::string>(size_t index) const;
 
 /**
  * @brief
@@ -34,7 +85,6 @@ using ByteArray = std::vector<std::byte>;
  * @return ByteArray
  */
 ByteArray operator+(const ByteArray& value_1, const ByteArray& value_2);
-
 /**
  * @brief ByteArray的 ostream 重载
  *
@@ -61,8 +111,8 @@ std::istream& operator>>(std::istream& stream, ByteArray& array);
  * @param value 输入值
  * @return ByteArray& 被输入的 ByteArray
  */
-template <typename T = uint8_t>
-inline ByteArray& operator<<(ByteArray& array, const T& value) {
+template <typename T>
+ByteArray& operator<<(ByteArray& array, const T& value) {
     static_assert(std::is_arithmetic<T>::value | std::is_same<T, char>::value
                       | std::is_same<T, std::byte>::value,
                   "T must be a numeric, char, byte type");
@@ -74,18 +124,13 @@ inline ByteArray& operator<<(ByteArray& array, const T& value) {
     return array;
 }
 
+ByteArray& operator<<(ByteArray& array, const char value[]);
+
 template <>
 ByteArray& operator<< <ByteArray>(ByteArray& array, const ByteArray& value);
 
 template <>
 ByteArray& operator<< <std::string>(ByteArray& array, const std::string& value);
-
-inline ByteArray& operator<<(ByteArray& array, const char value[]) {
-    std::copy(reinterpret_cast<std::byte const*>(value),
-              reinterpret_cast<std::byte const*>(value + strlen(value)),
-              std::back_inserter(array));
-    return array;
-}
 
 template <typename T>
 ByteArray& operator>>(ByteArray& array, T& value) {
@@ -104,34 +149,6 @@ ByteArray& operator>>(ByteArray& array, T& value) {
     }
     return array;
 }
-
-/**
- * @brief 读取Hex进制字符串的数据，存储在ByteArray中
- *
- * @param hex Hex进制字符串
- * @return ByteArray Hex进制的数据
- */
-ByteArray toByteArrayFromHex(std::string hex);
-
-/**
- * @brief 从不同的数据类型读取数据
- *
- * @tparam T
- * @param value
- * @return ByteArray
- */
-template <typename T>
-ByteArray toByteArray(const T& value) {
-    ByteArray bytes;
-    return std::move(bytes << value);
-}
-
-template <typename T>
-inline T ByteArrayTo(const ByteArray& array);
-
-template <>
-std::string ByteArrayTo<std::string>(const ByteArray& array);
-
 }; // namespace Flee
 
 template <>

@@ -20,6 +20,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace Flee {
 PROTOBUF_CONSTEXPR DevInfo::DevInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_._has_bits_)*/{}
@@ -42,26 +43,27 @@ struct DevInfoDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DevInfoDefaultTypeInternal _DevInfo_default_instance_;
+}  // namespace Flee
 static ::_pb::Metadata file_level_metadata_DevInfo_2eproto[1];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_DevInfo_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_DevInfo_2eproto = nullptr;
 
 const uint32_t TableStruct_DevInfo_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_.bootloader_),
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_.procversion_),
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_.codename_),
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_.incremental_),
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_.fingerprint_),
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_.bootid_),
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_.androidid_),
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_.baseband_),
-  PROTOBUF_FIELD_OFFSET(::DevInfo, _impl_.innerversion_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_.bootloader_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_.procversion_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_.codename_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_.incremental_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_.fingerprint_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_.bootid_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_.androidid_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_.baseband_),
+  PROTOBUF_FIELD_OFFSET(::Flee::DevInfo, _impl_.innerversion_),
   0,
   1,
   2,
@@ -73,24 +75,28 @@ const uint32_t TableStruct_DevInfo_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   8,
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 15, -1, sizeof(::DevInfo)},
+  { 0, 15, -1, sizeof(::Flee::DevInfo)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_DevInfo_default_instance_._instance,
+  &::Flee::_DevInfo_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_DevInfo_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\rDevInfo.proto\"\271\001\n\007DevInfo\022\022\n\nbootloade"
-  "r\030\001 \001(\014\022\023\n\013procVersion\030\002 \001(\014\022\020\n\010codename"
-  "\030\003 \001(\014\022\023\n\013incremental\030\004 \001(\014\022\023\n\013fingerpri"
-  "nt\030\005 \001(\014\022\016\n\006bootId\030\006 \001(\014\022\021\n\tandroidId\030\007 "
-  "\001(\014\022\020\n\010baseBand\030\010 \001(\014\022\024\n\014innerVersion\030\t "
-  "\001(\014"
+  "\n\rDevInfo.proto\022\004Flee\"\351\002\n\007DevInfo\022\027\n\nboo"
+  "tloader\030\001 \001(\014H\000\210\001\001\022\030\n\013procVersion\030\002 \001(\014H"
+  "\001\210\001\001\022\025\n\010codename\030\003 \001(\014H\002\210\001\001\022\030\n\013increment"
+  "al\030\004 \001(\014H\003\210\001\001\022\030\n\013fingerprint\030\005 \001(\014H\004\210\001\001\022"
+  "\023\n\006bootId\030\006 \001(\014H\005\210\001\001\022\026\n\tandroidId\030\007 \001(\014H"
+  "\006\210\001\001\022\025\n\010baseBand\030\010 \001(\014H\007\210\001\001\022\031\n\014innerVers"
+  "ion\030\t \001(\014H\010\210\001\001B\r\n\013_bootloaderB\016\n\014_procVe"
+  "rsionB\013\n\t_codenameB\016\n\014_incrementalB\016\n\014_f"
+  "ingerprintB\t\n\007_bootIdB\014\n\n_androidIdB\013\n\t_"
+  "baseBandB\017\n\r_innerVersionb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_DevInfo_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_DevInfo_2eproto = {
-    false, false, 203, descriptor_table_protodef_DevInfo_2eproto,
+    false, false, 393, descriptor_table_protodef_DevInfo_2eproto,
     "DevInfo.proto",
     &descriptor_table_DevInfo_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_DevInfo_2eproto::offsets,
@@ -103,6 +109,7 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_DevInfo_
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_DevInfo_2eproto(&descriptor_table_DevInfo_2eproto);
+namespace Flee {
 
 // ===================================================================
 
@@ -142,7 +149,7 @@ DevInfo::DevInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:DevInfo)
+  // @@protoc_insertion_point(arena_constructor:Flee.DevInfo)
 }
 DevInfo::DevInfo(const DevInfo& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -233,7 +240,7 @@ DevInfo::DevInfo(const DevInfo& from)
     _this->_impl_.innerversion_.Set(from._internal_innerversion(), 
       _this->GetArenaForAllocation());
   }
-  // @@protoc_insertion_point(copy_constructor:DevInfo)
+  // @@protoc_insertion_point(copy_constructor:Flee.DevInfo)
 }
 
 inline void DevInfo::SharedCtor(
@@ -292,7 +299,7 @@ inline void DevInfo::SharedCtor(
 }
 
 DevInfo::~DevInfo() {
-  // @@protoc_insertion_point(destructor:DevInfo)
+  // @@protoc_insertion_point(destructor:Flee.DevInfo)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -318,7 +325,7 @@ void DevInfo::SetCachedSize(int size) const {
 }
 
 void DevInfo::Clear() {
-// @@protoc_insertion_point(message_clear_start:DevInfo)
+// @@protoc_insertion_point(message_clear_start:Flee.DevInfo)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -471,61 +478,60 @@ failure:
 
 uint8_t* DevInfo::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:DevInfo)
+  // @@protoc_insertion_point(serialize_to_array_start:Flee.DevInfo)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
   // optional bytes bootloader = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if (_internal_has_bootloader()) {
     target = stream->WriteBytesMaybeAliased(
         1, this->_internal_bootloader(), target);
   }
 
   // optional bytes procVersion = 2;
-  if (cached_has_bits & 0x00000002u) {
+  if (_internal_has_procversion()) {
     target = stream->WriteBytesMaybeAliased(
         2, this->_internal_procversion(), target);
   }
 
   // optional bytes codename = 3;
-  if (cached_has_bits & 0x00000004u) {
+  if (_internal_has_codename()) {
     target = stream->WriteBytesMaybeAliased(
         3, this->_internal_codename(), target);
   }
 
   // optional bytes incremental = 4;
-  if (cached_has_bits & 0x00000008u) {
+  if (_internal_has_incremental()) {
     target = stream->WriteBytesMaybeAliased(
         4, this->_internal_incremental(), target);
   }
 
   // optional bytes fingerprint = 5;
-  if (cached_has_bits & 0x00000010u) {
+  if (_internal_has_fingerprint()) {
     target = stream->WriteBytesMaybeAliased(
         5, this->_internal_fingerprint(), target);
   }
 
   // optional bytes bootId = 6;
-  if (cached_has_bits & 0x00000020u) {
+  if (_internal_has_bootid()) {
     target = stream->WriteBytesMaybeAliased(
         6, this->_internal_bootid(), target);
   }
 
   // optional bytes androidId = 7;
-  if (cached_has_bits & 0x00000040u) {
+  if (_internal_has_androidid()) {
     target = stream->WriteBytesMaybeAliased(
         7, this->_internal_androidid(), target);
   }
 
   // optional bytes baseBand = 8;
-  if (cached_has_bits & 0x00000080u) {
+  if (_internal_has_baseband()) {
     target = stream->WriteBytesMaybeAliased(
         8, this->_internal_baseband(), target);
   }
 
   // optional bytes innerVersion = 9;
-  if (cached_has_bits & 0x00000100u) {
+  if (_internal_has_innerversion()) {
     target = stream->WriteBytesMaybeAliased(
         9, this->_internal_innerversion(), target);
   }
@@ -534,12 +540,12 @@ uint8_t* DevInfo::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:DevInfo)
+  // @@protoc_insertion_point(serialize_to_array_end:Flee.DevInfo)
   return target;
 }
 
 size_t DevInfo::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:DevInfo)
+// @@protoc_insertion_point(message_byte_size_start:Flee.DevInfo)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -625,7 +631,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*DevInfo::GetClassData() const 
 void DevInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<DevInfo*>(&to_msg);
   auto& from = static_cast<const DevInfo&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:DevInfo)
+  // @@protoc_insertion_point(class_specific_merge_from_start:Flee.DevInfo)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -664,7 +670,7 @@ void DevInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOB
 }
 
 void DevInfo::CopyFrom(const DevInfo& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:DevInfo)
+// @@protoc_insertion_point(class_specific_copy_from_start:Flee.DevInfo)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -725,10 +731,11 @@ void DevInfo::InternalSwap(DevInfo* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace Flee
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::DevInfo*
-Arena::CreateMaybeMessage< ::DevInfo >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::DevInfo >(arena);
+template<> PROTOBUF_NOINLINE ::Flee::DevInfo*
+Arena::CreateMaybeMessage< ::Flee::DevInfo >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Flee::DevInfo >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 
