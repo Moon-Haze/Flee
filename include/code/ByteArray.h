@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-09 13:33
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-09 20:03
+ * @LastEditTime: 2023-02-14 17:01
  * @FilePath: \Flee\include\code\ByteArray.h
  * @Description:
  */
@@ -10,6 +10,7 @@
 #define FLEE_BYTEARRAY_H
 
 #include <algorithm>
+#include <corecrt.h>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -30,24 +31,31 @@ public:
 
     ByteArray(ByteArray::const_iterator begin, ByteArray::const_iterator end);
 
+    ByteArray(std::byte* begin, std::byte* end);
+
+    ByteArray(std::byte* data, std::size_t size);
+
     ByteArray(std::initializer_list<std::byte> il);
 
     template <typename T>
-    T to(size_t index = 0) const;
+    T to(std::size_t begin = 0) const;
 
     template <typename T>
-    T readTo(size_t index = 0);
+    T read();
 
     ByteArray mid(size_t begin, size_t end) const;
 
-    ByteArray readByteArray(size_t begin, size_t end);
+    ByteArray readByteArray(size_t read_size = 0, size_t index = 0);
 
+    std::string toString(size_t read_size = 0) const;
+
+    std::string readString(size_t read_size = 0, size_t = 0);
     /**
      * @brief
      *
      * @param end_index
      */
-    iterator discardExact(size_t end_index);
+    iterator discardExact(size_t delete_size);
     /**
      * @brief
      *
@@ -73,9 +81,6 @@ public:
     template <typename T>
     static ByteArray from(const T& value);
 };
-
-template <>
-std::string ByteArray::to<std::string>(size_t index) const;
 
 /**
  * @brief

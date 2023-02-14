@@ -1,13 +1,17 @@
+/*
+ * @Author: Moon-Haze swx1126200515@outlook.com
+ * @Date: 2023-01-24 20:42
+ * @LastEditors: Moon-Haze swx1126200515@outlook.com
+ * @LastEditTime: 2023-02-11 15:42
+ * @FilePath: \Flee\include\util\tea.h
+ * @Description:
+ */
 #ifndef FLEE_TEA_H
 #define FLEE_TEA_H
 
 #include "ByteArray.h"
 
 namespace Flee {
-
-#ifndef DECRYPTER_16_ZERO
-#define DECRYPTER_16_ZERO ByteArray(16, Byte(0x00))
-#endif
 
 class Tea {
 
@@ -19,7 +23,7 @@ public:
      * @param value 加密数据
      * @return ByteArray 加密后的数据
      */
-    static ByteArray encrypt(ByteArray key, const ByteArray& value);
+    static ByteArray encrypt(const ByteArray& key, const ByteArray& value);
     /**
      * @brief tea 解密
      *
@@ -27,7 +31,7 @@ public:
      * @param value 解密数据
      * @return ByteArray 解密后的数据
      */
-    static ByteArray decrypt(ByteArray key, const ByteArray& value);
+    static ByteArray decrypt(const ByteArray& key, const ByteArray& value);
 
 private:
     Tea() = default;

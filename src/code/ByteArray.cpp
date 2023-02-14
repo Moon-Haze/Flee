@@ -69,82 +69,75 @@ ByteArray::ByteArray(std::vector<std::byte>::const_iterator begin,
                      std::vector<std::byte>::const_iterator end)
     : std::vector<std::byte>(begin, end) {}
 
+ByteArray::ByteArray(std::byte* begin, std::byte* end)
+    : std::vector<std::byte>(begin, end) {}
+
+ByteArray::ByteArray(std::byte* data, std::size_t size)
+    : ByteArray(data, data + size) {}
+
 ByteArray::ByteArray(std::initializer_list<std::byte> il)
     : std::vector<std::byte>(il) {}
 
 template <typename T>
-T ByteArray::to(size_t index) const {
-    size_t size = sizeof(T);
+T ByteArray::to(std::size_t begin) const {
+    size_t read_size = sizeof(T);
     T      value;
-    if(this->size() < (index + 1)) {
-        return value;
-    } else if((this->size() - index) > size) {
-        std::reverse_copy(this->begin() + index, this->begin() + index + size,
-                          reinterpret_cast<std::byte*>(&value));
-    } else {
-        std::reverse_copy(this->begin() + index, this->end(),
-                          reinterpret_cast<std::byte*>(&value));
+    if(read_size > (this->size() - begin)) {
+        read_size = this->size();
     }
+    std::reverse_copy(this->begin() + begin, this->begin() + begin + read_size,
+                      reinterpret_cast<std::byte*>(&value));
     return value;
 }
 
-template uint8_t  ByteArray::to<uint8_t>(size_t index) const;
-template uint16_t ByteArray::to<uint16_t>(size_t index) const;
-template uint32_t ByteArray::to<uint32_t>(size_t index) const;
-template uint64_t ByteArray::to<uint64_t>(size_t index) const;
+template uint8_t  ByteArray::to<uint8_t>(std::size_t begin) const;
+template uint16_t ByteArray::to<uint16_t>(std::size_t begin) const;
+template uint32_t ByteArray::to<uint32_t>(std::size_t begin) const;
+template uint64_t ByteArray::to<uint64_t>(std::size_t begin) const;
 
-template int8_t  ByteArray::to<int8_t>(size_t index) const;
-template int16_t ByteArray::to<int16_t>(size_t index) const;
-template int32_t ByteArray::to<int32_t>(size_t index) const;
-template int64_t ByteArray::to<int64_t>(size_t index) const;
+template int8_t  ByteArray::to<int8_t>(std::size_t begin) const;
+template int16_t ByteArray::to<int16_t>(std::size_t begin) const;
+template int32_t ByteArray::to<int32_t>(std::size_t begin) const;
+template int64_t ByteArray::to<int64_t>(std::size_t begin) const;
 
-template <>
-std::string ByteArray::to<std::string>(size_t index) const {
-    if(this->size() < (index + 1)) {
-        return std::string();
+std::string ByteArray::toString(size_t read_size) const {
+    if(read_size == 0 || this->size() >= read_size) {
+        read_size = this->size();
     }
     return std::move(
-        std::string(reinterpret_cast<const char*>(this->data() + index), this->size()));
+        std::string(reinterpret_cast<const char*>(this->data()), read_size));
 }
 
 template <typename T>
-T ByteArray::readTo(size_t index) {
-    size_t size = sizeof(T);
+T ByteArray::read() {
+    size_t read_size = sizeof(T);
     T      value;
-    if(this->size() < (index + 1)) {
-        return value;
-    } else if((this->size() - index) > size) {
-        // 将array的前sizeof(T)个元素拷贝到value的内存中
-        std::reverse_copy(this->begin() + index, this->begin() + index + size,
-                          reinterpret_cast<std::byte*>(&value));
-
-        this->erase(this->begin() + index, this->begin() + index + size);
-
-    } else {
-        std::reverse_copy(this->begin() + index, this->end(),
-                          reinterpret_cast<std::byte*>(&value));
-        this->erase(this->begin(), this->end());
+    if(read_size > this->size()) {
+        read_size = this->size();
     }
+    // 将array的前sizeof(T)个元素拷贝到value的内存中
+    std::reverse_copy(this->begin(), this->begin() + read_size,
+                      reinterpret_cast<std::byte*>(&value));
+    this->erase(this->begin(), this->begin() + read_size);
     return std::move(value);
 }
 
-template uint8_t  ByteArray::readTo<uint8_t>(size_t index);
-template uint16_t ByteArray::readTo<uint16_t>(size_t index);
-template uint32_t ByteArray::readTo<uint32_t>(size_t index);
-template uint64_t ByteArray::readTo<uint64_t>(size_t index);
+template uint8_t  ByteArray::read<uint8_t>();
+template uint16_t ByteArray::read<uint16_t>();
+template uint32_t ByteArray::read<uint32_t>();
+template uint64_t ByteArray::read<uint64_t>();
 
-template int8_t  ByteArray::readTo<int8_t>(size_t index);
-template int16_t ByteArray::readTo<int16_t>(size_t index);
-template int32_t ByteArray::readTo<int32_t>(size_t index);
-template int64_t ByteArray::readTo<int64_t>(size_t index);
+template int8_t  ByteArray::read<int8_t>();
+template int16_t ByteArray::read<int16_t>();
+template int32_t ByteArray::read<int32_t>();
+template int64_t ByteArray::read<int64_t>();
 
-template <>
-std::string ByteArray::readTo<std::string>(size_t index) {
-    if(this->size() < (index + 1)) {
-        return std::string();
+std::string ByteArray::readString(size_t read_size, size_t index) {
+    if(read_size == 0 || this->size() - index >= read_size) {
+        read_size = this->size();
     }
-    std::string str(reinterpret_cast<const char*>(this->data() + index), this->size());
-    this->erase(this->begin() + index, this->end());
+    std::string str(reinterpret_cast<const char*>(this->data() + index), read_size);
+    this->erase(this->begin() + index, this->begin() + index + read_size);
     return std::move(str);
 }
 
@@ -153,15 +146,23 @@ ByteArray ByteArray::mid(size_t begin, size_t end) const {
                      (ByteArray::const_iterator)(this->begin() + end));
 }
 
-ByteArray ByteArray::readByteArray(size_t begin, size_t end) {
+ByteArray ByteArray::readByteArray(size_t read_size, size_t index) {
+    if(read_size == 0 || this->size() - index >= read_size) {
+        read_size = this->size();
+    }
     ByteArray array;
-    std::copy(this->begin() + begin, this->begin() + end, std::back_inserter(array));
-    this->erase(this->begin() + begin, this->begin() + end);
+    std::copy(this->begin() + index, this->begin() + index + read_size,
+              std::back_inserter(array));
+    this->erase(this->begin() + index, this->begin() + index + read_size);
     return std::move(array);
 }
 
-ByteArray::iterator ByteArray::discardExact(size_t end_index) {
-    return erase(begin(), begin() + end_index);
+ByteArray::iterator ByteArray::discardExact(size_t delete_size) {
+    if(delete_size > size()) {
+        this->clear();
+        return this->begin();
+    }
+    return erase(begin(), begin() + delete_size);
 }
 
 std::string ByteArray::toHex() const {

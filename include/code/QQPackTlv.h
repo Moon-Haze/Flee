@@ -1,95 +1,53 @@
-#ifndef FLEE_PACKETLV_H
-#define FLEE_PACKETLV_H
+/*
+ * @Author: Moon-Haze swx1126200515@outlook.com
+ * @Date: 2023-02-11 15:15
+ * @LastEditors: Moon-Haze swx1126200515@outlook.com
+ * @LastEditTime: 2023-02-14 16:54
+ * @FilePath: \Flee\include\code\QQPackTlv.h
+ * @Description:
+ */
+#ifndef FLEE_QQPACKETLV_H
+#define FLEE_QQPACKETLV_H
 
-#include "AccountSecrets.h"
-#include "ByteArray.h"
-#include "QQProtocol.h"
-#include "device.h"
-#include <map>
+#include "DataPacket.h"
+#include "PacketListener.h"
+#include "Tlv.h"
+#include "ecdh.h"
+#include <spdlog/logger.h>
 
 namespace Flee {
+class QQPackTlv : public Tlv {
 
-class QQPackTlv {
-private:
-    uint64_t  uin;
-    ByteArray password;
+    ECDH ecdh{ ECDH::generateKeyPair() };
 
-public:
-    AccountSecrets sig;
-    APK            apk;
-    Device         device;
+    PacketListener listener;
+    // /* logger */
+    std::shared_ptr<spdlog::logger> logger;
 
 public:
-    explicit QQPackTlv(uint64_t uin, const Platform& platform,
-                       const std::string& device_file)
-        // : config(uin),
-        : sig(uin),
-          apk(APK::getApk(platform)),
-          device(std::move(Device::getDevice(device_file))) {}
+    using Tlv::Tlv;
 
-    explicit QQPackTlv(const QQPackTlv& other) : sig(other.sig) {}
+    void setLogger(std::shared_ptr<spdlog::logger> logger);
 
-    uint64_t getUin() const {
-        return uin;
-    }
+    PacketListener& getPacketListener();
+    /**
+     * @brief
+     *
+     * @param cmd
+     * @param body "wtlogin.login" "wtlogin.exchange_emp" "wtlogin.trans_emp"
+     * "StatSvc.register" "Client.CorrectTime"
+     * @param type 0  1  2
+     * @return ByteArray
+     */
+    ByteArray buildLoginPacket(std::string cmd, const ByteArray& body,
+                               uint8_t type = 2);
+    // buildCode2dPacket(this: BaseClient, cmdid: number, head: number, body: Buffer)
+    ByteArray buildCode2dPacket(uint16_t cmdid, uint32_t head, const ByteArray& body);
 
-    void setPassword(const ByteArray& value) {
-        password = value;
-    }
+    void parseFlagPacket(ByteArray& packet);
 
-    void setPassword(const std::string& value) {
-        password = md5(value);
-    }
-
-    ByteArray getPassword() const {
-        return password;
-    }
-
-    ByteArray t01() const;
-    ByteArray t08() const;
-    ByteArray t16() const;
-    ByteArray t18() const;
-    ByteArray t1B() const;
-    ByteArray t1D() const;
-    ByteArray t1F() const;
-    ByteArray t33() const;
-    ByteArray t35() const;
-    ByteArray t100(uint8_t emp = 0) const;
-    ByteArray t104() const;
-    ByteArray t106() const;
-    ByteArray t107() const;
-    ByteArray t109() const;
-    ByteArray t10a() const;
-    ByteArray t116() const;
-    ByteArray t124() const;
-    ByteArray t128() const;
-    ByteArray t141() const;
-    ByteArray t142() const;
-    ByteArray t143() const;
-    ByteArray t144() const;
-    ByteArray t145() const;
-    ByteArray t147() const;
-    ByteArray t154() const;
-    ByteArray t16e() const;
-    ByteArray t174() const;
-    ByteArray t177() const;
-    ByteArray t17a() const;
-    ByteArray t17c(const ByteArray& code) const;
-    ByteArray t187() const;
-    ByteArray t188() const;
-    ByteArray t191() const;
-    ByteArray t193(const ByteArray& ticket) const;
-    ByteArray t194() const;
-    ByteArray t197() const;
-    ByteArray t198() const;
-    ByteArray t202() const;
-    ByteArray t400() const;
-    ByteArray t401() const;
-    ByteArray t511() const;
-    ByteArray t516() const;
-    ByteArray t521() const;
-    ByteArray t525() const;
-    ByteArray t52d() const;
+    DataPacket parseSsoPacket(ByteArray& packet);
 };
-};     // namespace Flee
-#endif // FLEE_PACKETLV_H
+}; // namespace Flee
+
+#endif // FLEE_QQPACKETLV_H

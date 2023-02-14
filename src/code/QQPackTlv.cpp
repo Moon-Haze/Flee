@@ -1,703 +1,314 @@
-
-
+/*
+ * @Author: Moon-Haze swx1126200515@outlook.com
+ * @Date: 2023-02-11 15:15
+ * @LastEditors: Moon-Haze swx1126200515@outlook.com
+ * @LastEditTime: 2023-02-14 18:58
+ * @FilePath: \Flee\src\code\QQPackTlv.cpp
+ * @Description:
+ */
 #include "QQPackTlv.h"
-
 #include "ByteArray.h"
-#include "DevInfo.pb.h"
+#include "DataPacket.h"
+#include "ParsingException.h"
 #include "QQConfig.h"
-#include "QQProtocol.h"
-#include "constants.h"
 #include "tea.h"
-#include <algorithm>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/filter/zlib.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/stream.hpp>
 #include <cstdint>
+#include <spdlog/spdlog.h>
 #include <string>
-#include <utility>
 
 namespace Flee {
 
-ByteArray QQPackTlv::t01() const {
-    /**
-        return new Writer()
-            .writeU16(1) // ip ver
-            .writeBytes(crypto.randomBytes(4))
-            .writeU32(this.uin)
-            .write32(Date.now() & 0xffffffff)
-            .writeBytes(Buffer.alloc(4)) //ip
-            .writeU16(0)
-    */
-    ByteArray temp;
-    temp << uint32_t(0x01 << 16) << uint16_t(1) << getRandomInt() << uint32_t(this->uin)
-         << int32_t(currentTimeMillis() & 0xffffffff) << uint32_t(0) << uint16_t(0);
-    int16_t size = temp.size() - 4;
-    temp[2]      = Byte((size >> 8) & 0xff);
-    temp[3]      = Byte(size & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t08() const {
-    /**
-        return new Writer()
-            .writeU16(0)
-            .writeU32(2052)
-            .writeU16(0)
-    */
-    ByteArray temp;
-    temp << uint32_t(0x08 << 16) << uint16_t(0) << uint32_t(2052) << uint16_t(0);
-    int16_t size = temp.size() - 4;
-    temp[2]      = Byte((size >> 8) & 0xff);
-    temp[3]      = Byte(size & 0xff);
-    return std::move(temp);
+void QQPackTlv::setLogger(std::shared_ptr<spdlog::logger> logger) {
+    QQPackTlv::logger = logger;
 }
 
-ByteArray QQPackTlv::t16() const {
-    /**
-        const apk = (0, device_1.getApkInfo)(device_1.Platform.Watch);
-        return new writer_1.default()
-            .writeU32(7)
-            .writeU32(apk.appid)
-            .writeU32(apk.subid)
-            .writeBytes(this.device.guid)
-            .writeTlv(apk.id)
-            .writeTlv(apk.ver)
-            .writeTlv(apk.sign);
-    */
-    APK       apk = APK::getApk(Platform::Watch);
-    ByteArray temp;
-    temp << uint32_t(0x16 << 16) << uint32_t(7) << uint32_t(apk.appid)
-         << uint32_t(apk.subid) << this->device.guid << DataPacket(apk.id)
-         << DataPacket(apk.ver) << DataPacket(apk.sign);
-    int16_t size = temp.size() - 4;
-    temp[2]      = Byte((size >> 8) & 0xff);
-    temp[3]      = Byte(size & 0xff);
-    return std::move(temp);
+PacketListener& QQPackTlv::getPacketListener() {
+    return listener;
 }
-ByteArray QQPackTlv::t18() const {
+ByteArray QQPackTlv::buildLoginPacket(std::string cmd, const ByteArray& body,
+                                      uint8_t type) {
+    int16_t  seq      = this->sig.seq_pp();
+    uint32_t uin      = this->getUin();
+    uint16_t cmdid    = 0x810;
+    uint32_t subappid = this->apk.subid;
+    spdlog::info("send:{} seq:{}", cmd, seq);
     /**
-        return new Writer()
-            .writeU16(1) // ping ver
-            .writeU32(1536)
-            .writeU32(this.apk.appid)
-            .writeU32(0) // app client ver
-            .writeU32(this.uin)
-            .writeU16(0)
-            .writeU16(0)
-    */
-    ByteArray temp;
-    temp << uint32_t(0x18 << 16) << uint16_t(1) << uint32_t(1536)
-         << uint32_t(this->apk.appid) << uint32_t(0) << uint32_t(this->uin)
-         << uint32_t(0);
-    int16_t size = temp.size() - 4;
-    temp[2]      = Byte((size >> 8) & 0xff);
-    temp[3]      = Byte(size & 0xff);
-    return std::move(temp);
-}
+        if (cmd === "wtlogin.trans_emp") {
+            uin = 0;
+            cmdid = 0x812;
+            subappid = (0, device_1.getApkInfo)(device_1.Platform.Watch).subid;
+        }
+     */
+    if(cmd == "wtlogin.trans_emp") {
+        uin      = 0;
+        cmdid    = 0x812;
+        subappid = APK::getApk(Platform::Watch).subid;
+    }
+    ByteArray sso, temp, _temp_;
+    if(type == 2) {
+        /**
+            body = new Writer()
+                .writeU8(0x02)
+                .writeU8(0x01)
+                .writeBytes(this.sig.randkey)
+                .writeU16(0x131)
+                .writeU16(0x01)
+                .writeTlv(this[ECDH].public_key)
+                .writeBytes(tea.encrypt(body, this[ECDH].share_key))
+        */
+        temp << uint16_t((0x02 << 8) | 0x01) << this->sig.randkey
+             << uint32_t((0x131 << 16) | 0x01) << BuildPackage(ecdh.getPublicKey())
+             << Tea::encrypt(ecdh.getShareKey(), body);
 
-ByteArray QQPackTlv::t1B() const {
-    /*
-        return new writer_1.default()
-            .writeU16(1) // ping ver
-            .writeU32(1536)
-            .writeU32(this.apk.appid)
-            .writeU32(0) // app client ver
-            .writeU32(this.uin)
-            .writeU16(0)
-            .writeU16(0);
-    */
-    ByteArray temp;
-    temp << uint32_t(0x1B << 16) << uint16_t(1) << uint32_t(1536)
-         << uint32_t(this->apk.appid) << uint32_t(0) << uint32_t(this->uin)
-         << uint32_t(0);
-    int16_t size = temp.size() - 4;
-    temp[2]      = Byte((size >> 8) & 0xff);
-    temp[3]      = Byte(size & 0xff);
-    return std::move(temp);
-}
-
-ByteArray QQPackTlv::t1D() const {
+        /**
+            body = new Writer()
+                .writeU8(0x02)
+                .writeU16(29 + body.length) // 1 + 27 + body.length + 1
+                .writeU16(8001)             // protocol ver
+                .writeU16(cmdid)            // command id
+                .writeU16(1)                // const
+                .writeU32(uin)
+                .writeU8(3)                 // const
+                .writeU8(0x87)              // encrypt type 7:0 69:emp 0x87:4
+                .writeU8(0)                 // const
+                .writeU32(2)                // const
+                .writeU32(0)                // app client ver
+                .writeU32(0)                // const
+                .writeBytes(body)
+                .writeU8(0x03)
+        */
+        _temp_ << uint8_t(0x02) << uint16_t(29 + temp.size()) << uint16_t(8001) << cmdid
+               << uint16_t(1) << uint32_t(uin) << uint16_t((3 << 8) | 0x87)
+               << uint8_t(0) << uint32_t(2) << uint64_t(0) << temp << uint8_t(0x03);
+        temp.clear();
+    }
     /**
-        return new Writer()
-            .writeU8(1)
-            .writeU32(184024956)
-            .writeU32(0)
-            .writeU8(0)
-            .writeU32(0)
-    */
-    ByteArray temp;
-    temp << uint32_t(0x1D << 16) << uint8_t(1) << uint32_t(184024956) << uint32_t(0)
-         << uint8_t(0) << uint32_t(0);
-    int16_t size = temp.size() - 4;
-    temp[2]      = Byte((size >> 8) & 0xff);
-    temp[3]      = Byte(size & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t1F() const {
-    /**
-        return new Writer()
-            .writeU8(0)
-            .writeTlv("android")
-            .writeTlv("7.1.2")
-            .writeU16(2)
-            .writeTlv("China Mobile GSM")
-            .writeTlv(BUF0)
-            .writeTlv("wifi")
-    */
-    ByteArray temp;
-    temp << uint32_t(0x1F << 16) << uint8_t(0) << DataPacket("android")
-         << DataPacket("7.1.2") << uint16_t(2) << DataPacket("China Mobile GSM")
-         << uint16_t(0) /* DataPacket(ByteArray_0)*/ << DataPacket("wifi");
-    int16_t size = temp.size() - 4;
-    temp[2]      = Byte((size >> 8) & 0xff);
-    temp[3]      = Byte(size & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t33() const {
-    /**
-        return new Writer().writeBytes(this.device.guid)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x33 << 16) & this->device.guid.size()) << this->device.guid;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t35() const {
-    /**
-    return new Writer().writeU32(8)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x35 << 16) & 4) << uint32_t(8);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t100(uint8_t emp) const {
-    /**
-        return new Writer()
-            .writeU16(1) // db buf ver
-            .writeU32(7) // sso ver, dont over 7
-            .writeU32(this.apk.appid)
-            .writeU32(emp ? 2 : this.apk.subid)
-            .writeU32(0) // app client ver
-            .writeU32(this.apk.sigmap)
-    */
-    ByteArray temp;
-    temp << uint32_t(0x100 << 16) << uint16_t(1) << uint32_t(7)
-         << uint32_t(this->apk.appid) << uint16_t(emp ? 2 : this->apk.subid)
-         << uint32_t(0) << this->apk.sigmap;
-    int16_t size = temp.size() - 4;
-    temp[2]      = Byte((size >> 8) & 0xff);
-    temp[3]      = Byte(size & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t104() const {
-    /**
-        return new Writer().writeBytes(this.sig.t104)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x35 << 16) & this->sig.t104.size()) << this->sig.t104;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t106() const {
-    /**
-        const body = new Writer()
-            .writeU16(4) // tgtgt ver
-            .writeBytes(crypto.randomBytes(4))
-            .writeU32(7) // sso ver
-            .writeU32(this.apk.appid)
-            .writeU32(0) // app client ver
-            .writeU64(this.uin)
-            .write32(Date.now() & 0xffffffff)
-            .writeBytes(Buffer.alloc(4)) // dummy ip
-            .writeU8(1) // save password
-            .writeBytes(md5pass)
-            .writeBytes(this.sig.tgtgt)
-            .writeU32(0)
-            .writeU8(1) // guid available
-            .writeBytes(this.device.guid)
-            .writeU32(this.apk.subid)
-            .writeU32(1) // login type password
-            .writeTlv(String(this.uin))
-            .writeU16(0)
+        let sso = new Writer()
+            .writeWithLength(
+                new Writer()
+                    .writeU32(this.sig.seq)
+                    .writeU32(subappid)
+                    .writeU32(subappid)
+                    .writeBytes(Buffer.from(
+                        [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                        0x00, 0x00, 0x00, 0x01, 0x00])
+                    )
+                    .writeWithLength(this.sig.tgt)
+                    .writeWithLength(cmd)
+                    .writeWithLength(this.sig.session)
+                    .writeWithLength(this.device.imei)
+                    .writeU32(4)
+                    .writeU16(2)
+                    .writeU32(4)
+            )
+            .writeWithLength(body)
             .read()
     */
-    ByteArray temp, _temp_;
-    temp << uint16_t(4) << getRandomByteArray(4) << uint32_t(7) << this->apk.appid
-         << this->uin << int32_t(currentTimeMillis() & 0xffffffff) << ByteArray(4)
-         << uint8_t(1) << this->getPassword() << this->sig.tgtgt << uint32_t(0)
-         << uint8_t(1) << this->device.guid << this->apk.subid << uint32_t(1)
-         << DataPacket(std::to_string(this->uin)) << uint16_t(0);
-    /**
-        const buf = Buffer.alloc(4)
-        buf.writeUInt32BE(this.uin)
-        const key = md5(Buffer.concat([
-            md5pass, Buffer.alloc(4), buf
-        ]))
-        return new Writer().writeBytes(tea.encrypt(body, key))
-    */
-    ByteArray key = this->getPassword();
-    key << uint32_t(0) << this->uin;
-    _temp_ = Tea::encrypt(key, temp);
+    temp << uint32_t(this->sig.seq) << uint32_t(subappid) << uint32_t(subappid)
+         << ByteArray{ Byte{ 0x01 }, Byte{ 0x00 }, Byte{ 0x00 }, Byte{ 0x00 },
+                       Byte{ 0x00 }, Byte{ 0x00 }, Byte{ 0x00 }, Byte{ 0x00 },
+                       Byte{ 0x00 }, Byte{ 0x00 }, Byte{ 0x01 }, Byte{ 0x00 } }
+         << BuildPackageWithLength(this->sig.tgt) << BuildPackageWithLength(cmd)
+         << BuildPackageWithLength(this->sig.session)
+         << BuildPackageWithLength(this->device.imei) << uint32_t(4) << uint16_t(2)
+         << uint32_t(4);
+    sso << BuildPackageWithLength(temp) << BuildPackageWithLength(_temp_);
     temp.clear();
-    temp << uint32_t((0x106 << 16) & _temp_.size()) << _temp_;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t107() const {
+    _temp_.clear();
     /**
-        return new Writer()
-            .writeU16(0)    // pic type
-            .writeU8(0)     // captcha type
-            .writeU16(0)    // pic size
-            .writeU8(1)     // ret type
+        if (type === 1)
+            sso = tea.encrypt(sso, this.sig.d2key)
+        else if (type === 2)
+            sso = tea.encrypt(sso, BUF16)
     */
-    ByteArray temp;
-    temp << uint32_t((0x107 << 16) & 6) << uint16_t(0) << uint8_t(0) << uint16_t(0)
-         << uint8_t(1);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t109() const {
-    /**
-        return new Writer().writeBytes(md5(this.device.imei))
-    */
-    ByteArray temp;
-    temp << uint32_t(0x109 << 16) << md5(this->device.imei);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t10a() const {
-    /**
-        return new Writer().writeBytes(this.sig.tgt)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x10a << 16) & this->sig.tgt.size()) << this->sig.tgt;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t116() const {
-    /**
-        return new Writer()
-            .writeU8(0)
-            .writeU32(this.apk.bitmap)
-            .writeU32(0x10400) // sub sigmap
-            .writeU8(1) // size of app id list
-            .writeU32(1600000226) // app id list[0]
-    */
-    ByteArray temp;
-    temp << uint32_t(0x116 << 16) << uint8_t(0) << this->apk.bitmap << uint32_t(0x10400)
-         << uint8_t(1) << uint32_t(1600000226);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t124() const {
-    /**
-        return new Writer()
-            .writeTlv(this.device.os_type.slice(0, 16))
-            .writeTlv(this.device.version.release.slice(0, 16))
-            .writeU16(2) // network type
-            .writeTlv(this.device.sim.slice(0, 16))
-            .writeU16(0)
-            .writeTlv(this.device.apn.slice(0, 16))
-    */
-    ByteArray temp;
-    temp << uint32_t(0x124 << 16) << DataPacket(this->device.osType)
-         << DataPacket(this->device.version.release) << uint16_t(2)
-         << DataPacket(this->device.simInfo) << uint16_t(0)
-         << DataPacket(this->device.apn);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t128() const {
-    /**
-        return new Writer()
-            .writeU16(0)
-            .writeU8(0) // guid new
-            .writeU8(1) // guid available
-            .writeU8(0) // guid changed
-            .writeU32(16777216) // guid flag
-            .writeTlv(this.device.model.slice(0, 32))
-            .writeTlv(this.device.guid.slice(0, 16))
-            .writeTlv(this.device.brand.slice(0, 16))
-    */
-    ByteArray temp;
-    temp << uint32_t(0x128 << 16) << uint16_t(0) << uint8_t(0) << uint8_t(1)
-         << uint8_t(0) << uint32_t(16777216) << DataPacket(this->device.model)
-         << DataPacket(this->device.guid) << DataPacket(this->device.brand);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t141() const {
-    /**
-        return new Writer()
-            .writeU16(1) // ver
-            .writeTlv(this.device.sim)
-            .writeU16(2) // network type
-            .writeTlv(this.device.apn)
-    */
-    ByteArray temp;
-    temp << uint32_t(0x141 << 16) << uint16_t(1) << DataPacket(this->device.simInfo)
-         << uint16_t(2) << DataPacket(this->device.apn);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t142() const {
-    /**
-        return new Writer()
-            .writeU16(0)
-            .writeTlv(this.apk.id.slice(0, 32))
-    */
-    ByteArray temp;
-    temp << uint32_t((0x142 << 16) & (this->apk.id.size() + 2))
-         << DataPacket(this->apk.id);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t143() const {
-    /**
-        return new Writer().writeBytes(this.sig.d2)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x143 << 16) & this->sig.d2.size()) << this->sig.d2;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t144() const {
-    /**
-        const body = new Writer()
-            .writeU16(5) // tlv cnt
-            .writeBytes(QQPackTlv.call(this, 0x109))
-            .writeBytes(QQPackTlv.call(this, 0x52d))
-            .writeBytes(QQPackTlv.call(this, 0x124))
-            .writeBytes(QQPackTlv.call(this, 0x128))
-            .writeBytes(QQPackTlv.call(this, 0x16e))
-        return new Writer().writeBytes(tea.encrypt(body.read(), this.sig.tgtgt))
-    */
-    ByteArray temp;
-    temp << uint16_t(0) << t109() << t52d() << t124() << t128() << t16e();
-
-    temp =
-        ByteArray::from(uint32_t((0x142 << 16))) + Tea::encrypt(this->sig.tgtgt, temp);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t145() const {
-    /**
-        return new Writer().writeBytes(this.device.guid)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x145 << 16) & this->device.guid.size()) << this->device.guid;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t147() const {
-    /**
-        return new Writer()
-            .writeU32(this.apk.appid)
-            .writeTlv(this.apk.ver.slice(0, 5))
-            .writeTlv(this.apk.sign)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x147 << 16)) << uint32_t(this->apk.appid)
-         << DataPacket(this->apk.ver) << DataPacket(this->apk.sign);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t154() const {
-    /**
-        return new Writer().writeU32(this.sig.seq + 1)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x154 << 16) & 4) << uint32_t(this->sig.seq + 1);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t16e() const {
-    /**
-        return new Writer().writeBytes(this.device.model)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x16e << 16) & this->device.model.size()) << this->device.model;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t174() const {
-    /**
-        return new Writer().writeBytes(this.sig.t174)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x174 << 16) & this->sig.t174.size()) << this->sig.t174;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t177() const {
-    /**
-        return new Writer()
-            .writeU8(0x01)
-            .writeU32(this.apk.buildtime)
-            .writeTlv(this.apk.sdkver)
-    */
-    ByteArray temp;
-    temp << uint32_t(0x177 << 16) << uint8_t(0x01) << this->apk.buildTime
-         << DataPacket(this->apk.sdkver);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t17a() const {
-    /**
-        return new Writer().writeU32(9)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x17a << 16) & 4) << uint32_t(9);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t17c(const ByteArray& code) const {
-    /**
-        return new Writer().writeTlv(code)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x17c << 16) & code.size() + 2) << DataPacket(code);
-    return {};
-}
-ByteArray QQPackTlv::t187() const {
-    /**
-        return new Writer().writeBytes(md5(this.device.mac_address))
-    */
-    ByteArray temp;
-    temp << uint32_t(0x187 << 16) << md5(this->device.mac_address);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t188() const {
-    /**
-        return new Writer().writeBytes(md5(this.device.android_id))
-    */
-    ByteArray temp;
-    temp << uint32_t(0x188 << 16) << md5(this->device.android_id);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t191() const {
-    /**
-        return new Writer().writeU8(0x82)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x191 << 16) & 1) << uint8_t(0x82);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t193(const ByteArray& ticket) const {
-    /**
-        return new Writer().writeBytes(ticket)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x193 << 16) & ticket.size()) << ticket;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t194() const {
-    /**
-        return new Writer().writeBytes(this.)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x194 << 16) & this->device.imei.size()) << this->device.imei;
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t197() const {
-    /**
-        return new Writer().writeTlv(Buffer.alloc(1))
-    */
-    ByteArray temp;
-    temp << uint32_t((0x197 << 16) & 3) << uint16_t(1) << uint8_t(0);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t198() const {
-    /**
-        return new Writer().writeTlv(Buffer.alloc(1))
-    */
-    ByteArray temp;
-    temp << uint32_t((0x198 << 16) & 3) << uint16_t(1) << uint8_t(0);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t202() const {
-    /**
-        return new Writer()
-            .writeTlv(this.device.wifi_bssid.slice(0, 16))
-            .writeTlv(this.device.wifi_ssid.slice(0, 32))
-    */
-    ByteArray temp;
-    temp << uint32_t(0x202 << 16) << DataPacket(this->device.wifi_bssid)
-         << DataPacket(this->device.wifi_ssid);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t400() const {
-    /**
-        return new Writer()
-            .writeU16(1)
-            .writeU64(this.uin)
-            .writeBytes(this.device.guid)
-            .writeBytes(crypto.randomBytes(16))
-            .write32(1)
-            .write32(16)
-            .write32(Date.now() & 0xffffffff)
-            .writeBytes(Buffer.alloc(0))
-    */
-    ByteArray temp;
-    temp << uint32_t(0x400 << 16) << uint16_t(1) << this->uin << this->device.guid
-         << getRandomByteArray(16) << int32_t(1) << int32_t(16)
-         << int32_t(currentTimeMillis() & 0xffffffff);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t401() const {
-    /**
-        return new Writer().writeBytes(crypto.randomBytes(16))
-    */
-    ByteArray temp;
-    temp << uint32_t(0x401 << 16) << uint16_t(1) << this->uin << this->device.guid
-         << getRandomByteArray(16);
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t511() const {
-    /**
-        const domains = new Set<Domain>([
-            "aq.qq.com",
-            "buluo.qq.com",
-            "connect.qq.com",
-            "docs.qq.com",
-            "game.qq.com",
-            "gamecenter.qq.com",
-            // "graph.qq.com",
-            "haoma.qq.com",
-            "id.qq.com",
-            // "imgcache.qq.com",
-            "kg.qq.com",
-            "mail.qq.com",
-            "mma.qq.com",
-            "office.qq.com",
-            // "om.qq.com",
-            "openmobile.qq.com",
-            "qqweb.qq.com",
-            "qun.qq.com",
-            "qzone.qq.com",
-            "ti.qq.com",
-            "v.qq.com",
-            "vip.qq.com",
-            "y.qq.com",
-        ])
-    */
-    std::vector<std::string> domains = {
-        "aq.qq.com",
-        "buluo.qq.com",
-        "connect.qq.com",
-        "docs.qq.com",
-        "game.qq.com",
-        "gamecenter.qq.com",
-        // "graph.qq.com",
-        "haoma.qq.com",
-        "id.qq.com",
-        // "imgcache.qq.com",
-        "kg.qq.com",
-        "mail.qq.com",
-        "mma.qq.com",
-        "office.qq.com",
-        // "om.qq.com",
-        "openmobile.qq.com",
-        "qqweb.qq.com",
-        "qun.qq.com",
-        "qzone.qq.com",
-        "ti.qq.com",
-        "v.qq.com",
-        "vip.qq.com",
-        "y.qq.com",
-    };
-    /**
-        const stream = new Writer().writeU16(domains.size)
-        for (let v of domains)
-            stream.writeU8(0x01).writeTlv(v)
-        return stream
-    */
-    ByteArray temp;
-    temp << uint32_t(0x511 << 16) << uint16_t(domains.size());
-    for(std::string& item : domains) {
-        temp << uint8_t(0x01) << DataPacket(item);
+    if(type == 1) {
+        sso = Tea::encrypt(this->sig.d2key, sso);
+    } else if(type == 2) {
+        sso = Tea::encrypt(ByteArray(16), sso);
     }
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t516() const {
-    /**
-        return new Writer().writeU32(0)
-    */
-    ByteArray temp;
-    temp << uint32_t((0x516 << 16) & 4) << uint32_t(0);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t521() const {
     /**
         return new Writer()
-            .writeU32(0) // product type
-            .writeU16(0) // const
-    */
-    ByteArray temp;
-    temp << uint32_t((0x521 << 16) & 6) << uint32_t(0) << uint16_t(0);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t525() const {
-    /**
-        return new Writer()
-            .writeU16(1) // tlv cnt
-            .writeU16(0x536) // tag
-            .writeTlv(Buffer.from([0x1, 0x0])) // zero
-    */
-    ByteArray temp;
-    temp << uint32_t((0x525 << 16) & 8) << uint16_t(1) << uint16_t(0x536) << uint16_t(2)
-         << uint32_t(0x1 << 16);
-    return std::move(temp);
-}
-ByteArray QQPackTlv::t52d() const {
-    /**
-        const d = this.device
-        const buf = pb.encode({
-            1: d.bootloader,
-            2: d.proc_version,
-            3: d.version.codename,
-            4: d.version.incremental,
-            5: d.fingerprint,
-            6: d.boot_id,
-            7: d.android_id,
-            8: d.baseband,
-            9: d.version.incremental,
-        })
-        return new Writer().writeBytes(buf)
-    */
-    DevInfo devInfo;
-    devInfo.set_bootloader(this->device.bootloader.to<std::string>());
-    devInfo.set_procversion(this->device.proc_version.to<std::string>());
-    devInfo.set_codename(this->device.version.codename.to<std::string>());
-    devInfo.set_incremental(this->device.version.incremental.to<std::string>());
-    devInfo.set_fingerprint(this->device.fingerprint.to<std::string>());
-    devInfo.set_bootid(this->device.boot_id.to<std::string>());
-    devInfo.set_androidid(this->device.display.to<std::string>());
-    devInfo.set_baseband(this->device.baseBand.to<std::string>());
-    devInfo.set_innerversion(this->device.version.incremental.to<std::string>());
-
-    ByteArray temp;
-    temp << uint32_t(0x52d << 16) << devInfo.SerializeAsString();
-    uint16_t size = temp.size() - 4;
-    temp[2]       = Byte((size & 0xff) >> 4);
-    temp[3]       = Byte((size >> 4) & 0xff);
+        .writeWithLength(new Writer()
+            .writeU32(0x0A)
+            .writeU8(type)
+            .writeWithLength(this.sig.d2)
+            .writeU8(0)
+            .writeWithLength(String(uin))
+            .writeBytes(sso)
+            .read()
+        ).read()
+     */
+    _temp_ << uint32_t(0x0A) << type << BuildPackageWithLength(this->sig.d2)
+           << uint8_t(0) << BuildPackageWithLength(std::to_string(uin)) << sso;
+    sso.clear();
+    temp << BuildPackageWithLength(_temp_);
+    _temp_.clear();
     return std::move(temp);
 }
 
+ByteArray QQPackTlv::buildCode2dPacket(uint16_t cmdid, uint32_t head,
+                                       const ByteArray& body) {
+    ByteArray temp;
+    /**
+        body = new Writer()
+            .writeU32(head)
+            .writeU32(0x1000)
+            .writeU16(0)
+            .writeU32(0x72000000)
+            .writeU32(timestamp())
+            .writeU8(2)
+            .writeU16(44 + body.length)
+            .writeU16(cmdid)
+            .writeBytes(Buffer.alloc(21))
+            .writeU8(3)
+            .writeU16(0)
+            .writeU16(50)
+            .writeU32(this.sig.seq + 1)
+            .writeU64(0)
+            .writeBytes(body)
+            .writeU8(3)
+     */
+    temp << head << uint32_t(0x1000) << uint16_t(0) << uint32_t(0x72000000)
+         << uint32_t(currentTimeSeconds()) << uint8_t(2) << uint16_t(44 + body.size())
+         << cmdid << ByteArray(21) << uint8_t(3) << uint16_t(0) << uint16_t(50)
+         << uint32_t(this->sig.seq + 1) << uint64_t(0) << body << uint8_t(3);
+    spdlog::info("{} {}", __FUNCTION__, temp.toHex());
+    // return buildLoginPacket.call(this, "wtlogin.trans_emp", body)
+    return std::move(buildLoginPacket("wtlogin.trans_emp", temp));
+}
+
+void QQPackTlv::parseFlagPacket(ByteArray& packet) {
+
+    spdlog::info("{} packet: {}", __FUNCTION__, packet.toHex());
+    // const flag = pkt.readUInt8(4);
+    packet.discardExact(4);
+    auto flag       = packet.read<uint8_t>();
+    auto flag_error = packet.read<uint8_t>();
+    spdlog::info("flag = {}, flag_error = {}", flag, flag_error);
+    if(flag_error) {
+        // spdlog::error("Illegal flag error is {},message: {}", flag_error,
+        // packet.toString());
+        spdlog::error("Illegal flag error is {}", flag_error);
+
+    } else {
+        // const encrypted = pkt.slice(pkt.readUInt32BE(6) + 6);
+        packet.discardExact(packet.read<int32_t>() - 4);
+        /**
+            let decrypted;
+            switch (flag) {
+                case 0:
+                    decrypted = encrypted;
+                    break;
+                case 1:
+                    decrypted = tea.decrypt(encrypted, this.sig.d2key);
+                    break;
+                case 2:
+                    decrypted = tea.decrypt(encrypted, constants_1.BUF16);
+                    break;
+                default:
+                    this.emit("internal.error.token");
+                    throw new Error("unknown flag:" + flag);
+            }
+         */
+        ByteArray decrypted;
+        switch(flag) {
+            case 0: {
+                break;
+            }
+            case 1: {
+                decrypted = Tea::decrypt(this->sig.d2key, packet);
+                break;
+            }
+            case 2: {
+                decrypted = Tea::decrypt(ByteArray(16), packet);
+                break;
+            }
+            default: {
+                logger->error("{} unknown flag: {}", __FUNCTION__, flag);
+                throw ParsingException("unknown flag:" + std::to_string(flag),
+                                       ParsingException::FlagError);
+            }
+        }
+        /**
+             const sso = await parseSso.call(this, decrypted);
+             this.emit("internal.verbose", `recv:${sso.cmd} seq:${sso.seq}`,
+                VerboseLevel.Debug);
+            if (this[HANDLERS].has(sso.seq))
+                 this[HANDLERS].get(sso.seq)?.(sso.payload);
+             else
+                 this.emit("internal.sso", sso.cmd, sso.payload, sso.seq);
+         */
+        auto sso = parseSsoPacket(packet);
+        logger->info("recv: {} seq: {}", sso.cmd, sso.seq);
+        if(listener.contain(sso.seq)) {
+            listener.get(sso.seq)(sso.data);
+        } else {
+            ByteArray temp(sso.data);
+            parseFlagPacket(temp);
+        }
+    }
+}
+DataPacket QQPackTlv::parseSsoPacket(ByteArray& packet) {
+
+    spdlog::info("{} packet: {}", __FUNCTION__, packet.toHex());
+
+    ByteArray bytes   = packet.readByteArray(packet.read<uint32_t>() - 4);
+    int32_t   seq     = bytes.read<int32_t>();
+    int32_t   retcode = bytes.read<int32_t>();
+    /**
+        if (retcode !== 0) {
+            this.emit("internal.error.token");
+            throw new Error("unsuccessful retcode: " + retcode);
+        }
+    */
+    if(retcode != 0) {
+        logger->error("unsuccessful retcode: {}", retcode);
+        throw ParsingException("unsuccessful retcode: " + std::to_string(retcode),
+                               ParsingException::ReturnCodeError);
+    }
+    uint32_t    offset = bytes.read<uint32_t>();
+    uint32_t    len    = bytes.read<uint32_t>();
+    std::string cmd    = bytes.readString(len - offset);
+    bytes.discardExact(bytes.read<uint32_t>() - offset);
+    int32_t flag = bytes.read<int32_t>();
+    logger->info("{} flag:{}", __FUNCTION__, flag);
+    switch(flag) {
+        case 0: {
+            // payload = buf.slice(headlen + 4);
+            break;
+        }
+        case 1: {
+            // payload = await(0, constants_1.unzip)(buf.slice(headlen + 4));
+            boost::iostreams::filtering_streambuf<boost::iostreams::input> inbuf;
+            inbuf.push(boost::iostreams::zlib_decompressor());
+            inbuf.push(boost::iostreams::basic_array_source<char>(
+                reinterpret_cast<char*>(packet.data()), packet.size()));
+            packet.clear();
+            std::stringstream ss_decomp;
+            boost::iostreams::copy(inbuf, ss_decomp);
+            packet << ss_decomp.str();
+            break;
+        }
+        case 8: {
+            // payload = buf.slice(headlen);
+            //  不全 不知道可以吗
+            if(bytes.size() == 2) {
+                packet = bytes + packet;
+            }
+            logger->info("compressed flag: {}", flag);
+            break;
+        }
+        default: {
+            logger->error("unknown compressed flag: {}", flag);
+            throw ParsingException("unknown compressed flag: " + std::to_string(flag),
+                                   ParsingException::FlagError);
+        }
+    }
+    return { seq, packet, cmd };
+}
 }; // namespace Flee

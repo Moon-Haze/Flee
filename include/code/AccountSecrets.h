@@ -23,26 +23,26 @@ struct BigData {
     ByteArray   sig_session{ 0 };
     ByteArray   session_key{ 0 };
     explicit BigData() = default;
-    explicit BigData(const std::string& ip, uint16_t port, const ByteArray& sig_session,
-                     const ByteArray& session_key)
+    explicit BigData(const std::string& ip, uint16_t port, const ByteArray& sig_session, const ByteArray& session_key)
         : ip(ip), port(port), sig_session(sig_session), session_key(session_key) {}
-    explicit BigData(const BigData& other)
-        : BigData(other.ip, other.port, other.sig_session, other.session_key){};
+    explicit BigData(const BigData& other) : BigData(other.ip, other.port, other.sig_session, other.session_key){};
 };
-struct AccountSecrets {
+class AccountSecrets {
+
+public:
     /* data */
-    std::atomic_int16_t seq     = uint32_t(getRandomUInt() & 0xfff);
-    ByteArray           session = getRandomByteArray(4);
-    ByteArray           randkey = getRandomByteArray(16);
-    ByteArray           tgtgt   = getRandomByteArray(16);
-    ByteArray           tgt{ 0 };
-    ByteArray           skey{ 0 };
-    ByteArray           d2{ 0 };
-    ByteArray           d2key{ 0 };
-    ByteArray           t104{ 0 };
-    ByteArray           t174{ 0 };
-    ByteArray           qrsig{ 0 };
-    BigData             bigdata{};
+    std::atomic_int16_t seq = uint32_t(getRandomUInt() & 0xfff);
+    ByteArray session = getRandomByteArray(4);
+    ByteArray randkey = getRandomByteArray(16);
+    ByteArray tgtgt   = getRandomByteArray(16);
+    ByteArray tgt{ 0 };
+    ByteArray skey{ 0 };
+    ByteArray d2{ 0 };
+    ByteArray d2key{ 0 };
+    ByteArray t104{ 0 };
+    ByteArray t174{ 0 };
+    ByteArray qrsig{ 0 };
+    BigData   bigdata{};
 
     /**
      * @brief hb480 未完成

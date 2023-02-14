@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-07 13:28
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-09 20:48
+ * @LastEditTime: 2023-02-14 13:35
  * @FilePath: \Flee\include\code\NetworkHandler.h
  * @Description:
  */
@@ -10,40 +10,50 @@
 #define FLEE_NETWORKHANDER_H
 
 #include "ByteArray.h"
+#include <array>
 #include <boost/asio.hpp>
+#include <cstddef>
 #include <functional>
 #include <map>
+#include <mutex>
 #include <thread>
 
 namespace Flee {
 
 class NetworkHandler {
 
-    boost::asio::io_service      io_service{};
-    boost::asio::ip::tcp::socket socket{ io_service };
-    ByteArray                    buffer;
-    std::thread                 * network_thread=nullptr;
-    // std::mutex m_mutex;
+    boost::asio::ip::tcp::socket socket;
+    boost::asio::io_service&     io_service;
+    /* 数据接收解析缓存 */
+    std::array<std::byte, 512> buffer;
+    ByteArray                  packet_buffer;
+    /* network thread */
+    // std::thread* network_thread = nullptr;
+    /* IP地址 */
+    boost::asio::ip::tcp::resolver::iterator iter{};
 
 public:
-    explicit NetworkHandler();
+    explicit NetworkHandler(boost::asio::io_service& io_service);
 
     ~NetworkHandler();
 
-    void connect(const std::string& host, const std::string& port);
+    bool connect(const std::string& host, const std::string& port);
 
-    void write(const ByteArray& buffer);
+    bool connect(const std::string& host, uint_least16_t port);
 
-    void read(std::function<void(const ByteArray&)> func);
+    bool reconnect();
 
-    void readToPacket(std::function<void(const ByteArray&)> func);
+    void write(const ByteArray& buffer, std::function<void(std::size_t)> func);
+
+    void async_write(const ByteArray& buffer, std::function<void(std::size_t)> func);
+
+    void async_read(std::function<void(ByteArray&)> func);
 
     void close();
 
-private:
-    void readDatawithThread(std::function<void(const ByteArray&)> func);
+    void onReadToPacket(boost::system::error_code ec, std::size_t read_size,
+                        std::function<void(ByteArray&)> func);
 };
 
-}; // namespace Flee
-
+};     // namespace Flee
 #endif // FLEE_NETWORKHANDER_H

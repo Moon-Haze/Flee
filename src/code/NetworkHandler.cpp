@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-07 13:28
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-10 14:15
+ * @LastEditTime: 2023-02-14 17:14
  * @FilePath: \Flee\src\code\NetworkHandler.cpp
  * @Description:
  */
@@ -13,6 +13,7 @@
 #include <boost/asio/read.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <minwindef.h>
 #include <spdlog/spdlog.h>
 #include <sstream>
@@ -22,37 +23,71 @@
 
 namespace Flee {
 
-NetworkHandler::NetworkHandler() {}
+NetworkHandler::NetworkHandler(boost::asio::io_service& io_service)
+    : io_service(io_service), socket(io_service) {}
 
-void NetworkHandler::connect(const std::string& host, const std::string& port) {
-
+bool NetworkHandler::connect(const std::string& host, const std::string& port) {
     boost::asio::ip::tcp::resolver::query query(host, port);
+    boost::asio::ip::tcp::resolver        resolver{ io_service };
+    boost::system::error_code             ec;
 
-    boost::asio::ip::tcp::resolver resolver{ io_service };
-    boost::system::error_code      ec;
-
-    boost::asio::ip::tcp::resolver::iterator iter = resolver.resolve(query, ec);
+    iter = resolver.resolve(query, ec);
     if(ec) {
-        throw NetworkException(ec.message(), NetworkException::ResolveError);
+        // throw NetworkException(ec.message(), NetworkException::ResolveError);
+        return false;
     } else {
         socket.connect(*iter, ec);
         if(ec) {
-            spdlog::error("Cann't connect to {}:{}\n{}", host, port, ec.message());
-            throw NetworkException(ec.message(), NetworkException::ConnectionError);
+            spdlog::info("Cann't connect to {}:{}\n{}", host, port, ec.message());
+            return false;
+            // throw NetworkException(ec.message(), NetworkException::ConnectionError);
         } else {
             spdlog::info("Connect to {}:{}", host, port);
+            return true;
         }
     }
 }
+bool NetworkHandler::connect(const std::string& host, uint_least16_t port) {
+    boost::system::error_code      ec;
+    boost::asio::ip::tcp::endpoint endpoint(
+        boost::asio::ip::address_v4::from_string(host), port);
+    socket.connect(endpoint, ec);
+    if(ec) {
+        spdlog::info("Cann't connect to {}:{}\n{}", host, port, ec.message());
+        return false;
+        // throw NetworkException(ec.message(), NetworkException::ConnectionError);
+    } else {
+        spdlog::info("Connect to {}:{}", host, port);
+        return true;
+    }
+}
 
-void NetworkHandler::write(const ByteArray& buffer) {
+bool NetworkHandler::reconnect() {
+    boost::system::error_code ec;
+    socket.connect(*iter, ec);
+    if(ec) {
+        spdlog::info("Cann't reconnect to {}:{}\n{}", iter->service_name(),
+                     iter->host_name(), ec.message());
+        return false;
+        // throw NetworkException(ec.message(), NetworkException::ConnectionError);
+    } else {
+        spdlog::info("Reconnect to {}:{}", iter->service_name(), iter->host_name());
+        return true;
+    }
+}
+
+void NetworkHandler::write(const ByteArray&                 buffer,
+                           std::function<void(std::size_t)> func) {
+    boost::system::error_code ec;
+    std::size_t               write_size;
     if(socket.is_open()) {
-        boost::system::error_code ec;
-        socket.write_some(boost::asio::buffer(buffer, buffer.size()), ec);
+        write_size =
+            boost::asio::write(socket, boost::asio::buffer(buffer, buffer.size()), ec);
         if(ec) {
             throw NetworkException(ec.message(), NetworkException::WriteError);
         } else {
-            spdlog::info("send data: size={}", buffer.size());
+            spdlog::info("send data successfully: size={}", write_size);
+            func(write_size);
         }
     } else {
         throw NetworkException(std::string(__FUNCTION__) + " Network not connected",
@@ -60,54 +95,61 @@ void NetworkHandler::write(const ByteArray& buffer) {
     }
 }
 
-void NetworkHandler::read(std::function<void(const ByteArray&)> func) {
+void NetworkHandler::async_write(const ByteArray&                 buffer,
+                                 std::function<void(std::size_t)> func) {
+
     if(socket.is_open()) {
-        spdlog::info("socket is opening.");
-        while(socket.available() <= 0) {
-        }
-        spdlog::info("socket available: {}", socket.available());
-        std::size_t               data_size;
-        boost::system::error_code ec;
-        while((data_size = socket.available()) > 0) {
-            ByteArray buffer;
-            buffer.resize(data_size);
-            spdlog::info("data_size: {}", data_size);
-            data_size = socket.read_some(boost::asio::buffer(buffer), ec);
-            spdlog::info("data_size: {}", data_size);
-        }
+        socket.async_write_some(
+            boost::asio::buffer(buffer),
+            [func](boost::system::error_code ec, std::size_t write_size) {
+                if(ec) {
+                    throw NetworkException(ec.message(), NetworkException::WriteError);
+                } else {
+                    spdlog::info("send data successfully: size={}", write_size);
+                    func(write_size);
+                }
+            });
+    } else {
+        throw NetworkException(std::string(__FUNCTION__) + " Network not connected",
+                               NetworkException::WriteError);
     }
 }
-void NetworkHandler::readToPacket(std::function<void(const ByteArray&)> func) {
-    // network_thread
-    network_thread = new std::thread(&NetworkHandler::readDatawithThread, this, func);
-    // network_thread.r
-    network_thread->join();
+
+void NetworkHandler::async_read(std::function<void(ByteArray&)> func) {
+    socket.async_read_some(boost::asio::buffer(buffer),
+                           std::bind(&NetworkHandler::onReadToPacket, this,
+                                     std::placeholders::_1, std::placeholders::_2,
+                                     func));
 }
 
-void NetworkHandler::readDatawithThread(std::function<void(const ByteArray&)> func) {
-    std::array<std::byte, 512> temp;
-    boost::system::error_code  ec;
-    std::size_t                available_size = 0, read_size = 0;
-    uint32_t                   length = 0;
-    while(socket.is_open()) {
-        if((available_size = socket.available()) > 0) {
-            spdlog::info("socket available: {}", available_size);
-            read_size = socket.read_some(boost::asio::buffer(temp), ec);
-            if(ec) {
-                spdlog::info("ec.message={}", ec.message());
-            } else if(read_size > 0) {
-                spdlog::info("Network recevice data (size={})", read_size);
-                std::move(temp.begin(), temp.end(), std::back_inserter(buffer));
-                spdlog::info("Now recevice data in buffer (size={}) \n", buffer.size(),
-                             buffer.toHex());
-                // 分割数据包
-                while((length = buffer.to<uint32_t>()) <= buffer.size()) {
-                    auto _temp_ = buffer.readByteArray(0, length);
-                    spdlog::info("Network recevice data: \n {}", _temp_.toHex());
-                    func(_temp_);
-                    _temp_.clear();
-                }
-            } else {
+void NetworkHandler::onReadToPacket(boost::system::error_code ec, std::size_t read_size,
+                                    std::function<void(ByteArray&)> func) {
+    static uint16_t ec_size = 0;
+    if(ec) {
+        spdlog::info("Error in read data.  code: {}  message {}", ec.value(),
+                     ec.message());
+    } else {
+        socket.async_read_some(boost::asio::buffer(buffer),
+                               std::bind(&NetworkHandler::onReadToPacket, this,
+                                         std::placeholders::_1, std::placeholders::_2,
+                                         func));
+        if(read_size > 0) {
+            spdlog::info("Network recevice data: size = {}", read_size);
+            std::move(buffer.begin(), buffer.begin() + read_size,
+                      std::back_inserter(packet_buffer));
+            // 分割数据包
+            uint32_t length = 0;
+            while((length = (packet_buffer.read<uint32_t>() - 4))
+                  <= packet_buffer.size()) {
+                auto _temp_ = packet_buffer.readByteArray(length);
+                spdlog::info("Network recevice packet: size = {}", _temp_.size());
+                func(_temp_);
+                _temp_.clear();
+            }
+        } else {
+            ec_size++;
+            if(ec_size == 0) {
+                spdlog::info("Network recevice data size: 0");
             }
         }
     }
@@ -115,6 +157,7 @@ void NetworkHandler::readDatawithThread(std::function<void(const ByteArray&)> fu
 
 void NetworkHandler::close() {
     boost::system::error_code ec;
+    io_service.stop();
     socket.close(ec);
     if(ec) {
         throw NetworkException(ec.message(), NetworkException::CloseError);
@@ -123,8 +166,6 @@ void NetworkHandler::close() {
 
 NetworkHandler::~NetworkHandler() {
     this->close();
-    if(network_thread->joinable()) {
-        network_thread->join();
-    }
 }
+
 } // namespace Flee

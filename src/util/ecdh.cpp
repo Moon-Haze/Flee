@@ -13,9 +13,8 @@
         "FB 33 50 5E 63 EF C5 D7 8E E4 E0 A4 59 50 33 B9 3D 02 09 " \
         "6D CD 31 90 27 92 11 "                                     \
         "F7 B4 F6 78 50 79 E1 90 04 AA 0E 03 BC")
-#define DEFAULTSHAREKEY                                                      \
-    Flee::ByteArray::fromHex("C1 29 ED BA 73 6F 49 09 EC C4 AB 8E 01 0F 46 " \
-                             "A3")
+#define DEFAULTSHAREKEY \
+    Flee::ByteArray::fromHex("C1 29 ED BA 73 6F 49 09 EC C4 AB 8E 01 0F 46 A3")
 
 namespace Flee {
 
@@ -30,6 +29,7 @@ ECDH::ECDH()
       publicKey(DEFAULTPUBLICKEY),
       shareKey(DEFAULTSHAREKEY),
       maskedShareKey(domain.AgreedValueLength()) {}
+
 ECDH::ECDH(const ECDH& other)
     : privateKey(other.privateKey),
       publicKey(other.publicKey),
@@ -58,7 +58,7 @@ ECDH ECDH::generateKeyPair() {
     } catch(std::exception& e) {
         spdlog::error("ERROR in generating ECDH's Key Pair \n{}", e.what());
     }
-    return ECDH{ privateKey, publicKey, ByteArray(), shareKey, dh };
+    return ECDH{ privateKey, publicKey, DEFAULTSHAREKEY, shareKey, dh };
 }
 
 bool ECDH::isDefault() const {

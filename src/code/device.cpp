@@ -2,8 +2,12 @@
 #include "device.h"
 #include "ByteArray.h"
 #include "ParsingException.h"
+#include "constants.h"
 
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -11,61 +15,143 @@
 #include <json/value.h>
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
+#include <sstream>
 #include <string>
+#include <string_view>
+#include <utility>
 
 namespace Flee {
 
-Device Device::getDevice(const std::string& filename) {
-    if(!filename.empty()) {
-        std::ifstream file(filename);
-        spdlog::info("Device's file name is {}", filename);
-        if(!file.is_open()) {
-            spdlog::warn("Failed to open file {} in {}", filename, __FILE_NAME__);
-        } else {
-            std::string json_data((std::istreambuf_iterator<char>(file)),
-                                  std::istreambuf_iterator<char>());
-            // 将字符串解析为 JSON 对象
-            JSONCPP_STRING          errs;
-            Json::Value             root;
-            Json::CharReaderBuilder readerBuilder;
+BaseDevice::BaseDevice(std::string product, std::string device, std::string board,
+                       std::string brand, std::string model, std::string wifi_ssid,
+                       std::string bootloader, std::string android_id,
+                       std::string boot_id, std::string proc_version,
+                       std::string mac_address, std::string ip_address,
+                       std::string imei, uint32_t incremental)
+    : product(std::move(product)),
+      device(std::move(device)),
+      board(std::move(board)),
+      brand(std::move(brand)),
+      model(std::move(model)),
+      wifi_ssid(std::move(wifi_ssid)),
+      bootloader(std::move(bootloader)),
+      android_id(std::move(android_id)),
+      boot_id(std::move(boot_id)),
+      proc_version(std::move(proc_version)),
+      mac_address(std::move(mac_address)),
+      ip_address(std::move(ip_address)),
+      imei(std::move(imei)),
+      incremental(std::move(incremental)) {}
 
-            std::unique_ptr<Json::CharReader> const jsonReader(
-                readerBuilder.newCharReader());
-            auto res =
-                jsonReader->parse(json_data.c_str(),
-                                  json_data.c_str() + json_data.length(), &root, &errs);
-            if(!res) {
-                spdlog::warn("Failed to parse JSON data from file {}\n", filename);
-            } else {
-                /***
-                 * "product": "MRS4S",
-                 * "device": "HIM188MOE",
-                 * "board": "MIRAI-YYDS",
-                 * "brand": "OICQX",
-                 * "model": "Konata 2020",
-                 * "wifi_ssid": "TP-LINK-80fb9b98",
-                 * "bootloader": "U-boot",
-                 * "android_id": "OICQX.18667125.702",
-                 * "boot_id": "48eb7d46-2934-204a-35a4-07ef1daa3111",
-                 * "proc_version": "Linux version 4.19.71-10548
-                 * (konata@takayama.github.com)", "mac_address":
-                 * "00:50:20:4A:35:A4", "ip_address": "10.0.7.239", "imei":
-                 * "353301082446845", "incremental": 497692945,
-                 */
-                return Device(
-                    root["product"].as<ByteArray>(), root["device"].as<ByteArray>(),
-                    root["board"].as<ByteArray>(), root["brand"].as<ByteArray>(),
-                    root["model"].as<ByteArray>(), root["wifi_ssid"].as<ByteArray>(),
-                    root["bootloader"].as<ByteArray>(),
-                    root["android_id"].as<ByteArray>(), root["boot_id"].as<ByteArray>(),
-                    root["proc_version"].as<ByteArray>(),
-                    root["mac_address"].as<ByteArray>(),
-                    root["ip_address"].as<ByteArray>(), root["imei"].asString(),
-                    ByteArray::from(std::to_string(root["incremental"].asUInt())));
-            }
-        }
+BaseDevice::BaseDevice(const BaseDevice& device)
+    : product(device.product),
+      device(device.device),
+      board(device.board),
+      brand(device.brand),
+      model(device.model),
+      wifi_ssid(device.wifi_ssid),
+      bootloader(device.bootloader),
+      android_id(device.android_id),
+      boot_id(device.boot_id),
+      proc_version(device.proc_version),
+      mac_address(device.mac_address),
+      ip_address(device.ip_address),
+      imei(device.imei),
+      incremental(device.incremental) {}
+
+BaseDevice BaseDevice::loadBaseDevice(const std::string& filename) {
+    std::ifstream file(filename);
+    std::string   json_data((std::istreambuf_iterator<char>(file)),
+                            std::istreambuf_iterator<char>());
+    // 将字符串解析为 JSON 对象
+    JSONCPP_STRING                          errs;
+    Json::Value                             root;
+    Json::CharReaderBuilder                 readerBuilder;
+    std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
+    auto                                    res = jsonReader->parse(json_data.c_str(),
+                                                                    json_data.c_str() + json_data.length(), &root, &errs);
+    if(!res) {
+        spdlog::info("Failed to parse JSON data from file {}", filename);
+    } else {
+        spdlog::info("Load JSON data from file {}", filename);
+        /***
+         * "product": "MRS4S",
+         * "device": "HIM188MOE",
+         * "board": "MIRAI-YYDS",
+         * "brand": "OICQX",
+         * "model": "Konata 2020",
+         * "wifi_ssid": "TP-LINK-80fb9b98",
+         * "bootloader": "U-boot",
+         * "android_id": "OICQX.18667125.702",
+         * "boot_id": "48eb7d46-2934-204a-35a4-07ef1daa3111",
+         * "proc_version": "Linux version 4.19.71-10548
+         * (konata@takayama.github.com)", "mac_address":
+         * "00:50:20:4A:35:A4", "ip_address": "10.0.7.239", "imei":
+         * "353301082446845", "incremental": 497692945,
+         */
+        return BaseDevice(root["product"].asString(), root["device"].asString(),
+                          root["board"].asString(), root["brand"].asString(),
+                          root["model"].asString(), root["wifi_ssid"].asString(),
+                          root["bootloader"].asString(), root["android_id"].asString(),
+                          root["boot_id"].asString(), root["proc_version"].asString(),
+                          root["mac_address"].asString(), root["ip_address"].asString(),
+                          root["imei"].asString(), root["incremental"].asUInt());
     }
-    return Device();
+    return BaseDevice();
+}
+BaseDevice BaseDevice::generateBaseDevice(uint64_t uin) {
+    ByteArray         hash = md5(std::to_string(uin));
+    std::string       hex  = hash.toHex();
+    std::stringstream ip_address;
+    ip_address << "10.0." << ( uint8_t )(hash[10]) << '.' << ( uint8_t )(hash[11]);
+    return BaseDevice(
+        "MRS4S", "HIM188MOE", "MIRAI-YYDS", "OICQX", "Konata 2020",
+        "TP-LINK-" + getRandomString(8), "U-boot",
+        "OICQX." + getRandomIntString(8) + "." + getRandomIntString(3), generateUUID(),
+        "Linux version 3.0.31-" + getRandomIntString(5)
+            + " (android-build@xxx.xxx.xxx.xxx.com)",
+        "02:00:00:00:00:00", ip_address.str(), generateImei(uin), 5891938);
+}
+
+Device Device::getDevice(uint64_t uin, const std::string& filename) {
+    if((!filename.empty()) && boost::filesystem::exists(filename)) {
+
+        return Device(BaseDevice::loadBaseDevice(filename));
+    }
+    spdlog::info("Device file ({}) isn't exists.", filename);
+    std::ofstream ofs(filename);
+    Device        device(BaseDevice::generateBaseDevice(uin));
+    if(ofs.is_open()) {
+        ofs << device;
+    }
+    ofs.close();
+    spdlog::info("New device file created: {}", filename);
+    return device;
+}
+Device::Device(uint64_t uin) : imei(std::move(generateImei(uin))) {
+
+    fingerprint << this->brand << '/' << this->device << ":10" << this->android_id
+                << '/' << this->version.incremental << ":user/release-keys";
+}
+
+Device::Device(const BaseDevice& basedevice)
+    : product(std::move(ByteArray::from(basedevice.product))),
+      device(std::move(ByteArray::from(basedevice.device))),
+      board(std::move(ByteArray::from(basedevice.board))),
+      brand(std::move(ByteArray::from(basedevice.brand))),
+      model(std::move(ByteArray::from(basedevice.model))),
+      wifi_ssid(std::move(ByteArray::from(basedevice.wifi_ssid))),
+      bootloader(std::move(ByteArray::from(basedevice.bootloader))),
+      android_id(std::move(ByteArray::from(basedevice.android_id))),
+      boot_id(std::move(ByteArray::from(basedevice.boot_id))),
+      proc_version(std::move(ByteArray::from(basedevice.proc_version))),
+      mac_address(std::move(ByteArray::from(basedevice.mac_address))),
+      ip_address(std::move(ByteArray::from(basedevice.ip_address))),
+      imei(basedevice.imei),
+      guid(std::move(md5(ByteArray::from(imei) + mac_address))) {
+    this->version.incremental << basedevice.incremental;
+    fingerprint << this->brand << '/' << this->device << ":10" << this->android_id
+                << '/' << this->version.incremental << ":user/release-keys";
 }
 
 Device::Device(ByteArray product, ByteArray device, ByteArray board, ByteArray brand,
@@ -85,8 +171,11 @@ Device::Device(ByteArray product, ByteArray device, ByteArray board, ByteArray b
       proc_version(std::move(proc_version)),
       mac_address(std::move(mac_address)),
       ip_address(std::move(ip_address)),
-      imei(std::move(imei)) {
+      imei(std::move(imei)),
+      guid(std::move(md5(ByteArray::from(imei) + mac_address))) {
     this->version.incremental = std::move(incremental);
+    fingerprint << this->brand << '/' << this->device << ":10" << this->android_id
+                << '/' << this->version.incremental << ":user/release-keys";
 }
 Device::Device(const Device& other)
     : product(other.product),
@@ -103,13 +192,12 @@ Device::Device(const Device& other)
       ip_address(other.ip_address),
       imei(other.imei),
       version(other.version),
-      display(other.display),
       fingerprint(other.fingerprint),
       baseBand(other.baseBand),
       simInfo(other.simInfo),
       osType(other.osType),
       wifi_bssid(other.wifi_bssid),
-      imsiMd5(other.imsiMd5),
+      imsi(other.imsi),
       apn(other.apn),
       guid(other.guid) {}
 
@@ -172,46 +260,30 @@ std::ostream& operator<<(std::ostream& stream, const Device& info) {
             root["mac_address"].as<ByteArray>(),
             root["ip_address"].as<ByteArray>(), root["imei"].asString(),
             oByteArray(std::to_string(root["incremental"].asUInt())));
-         *
          */
         Json::Value root;
-        root["product"]      = info.product.to<std::string>();
-        root["device"]       = info.device.to<std::string>();
-        root["board"]        = info.board.to<std::string>();
-        root["brand"]        = info.brand.to<std::string>();
-        root["model"]        = info.model.to<std::string>();
-        root["wifi_ssid"]    = info.wifi_ssid.to<std::string>();
-        root["bootloader"]   = info.bootloader.to<std::string>();
-        root["android_id"]   = info.android_id.to<std::string>();
-        root["boot_id"]      = info.boot_id.to<std::string>();
-        root["proc_version"] = info.proc_version.to<std::string>();
-        root["mac_address"]  = info.mac_address.to<std::string>();
+        root["product"]      = info.product.toString();
+        root["device"]       = info.device.toString();
+        root["board"]        = info.board.toString();
+        root["brand"]        = info.brand.toString();
+        root["model"]        = info.model.toString();
+        root["wifi_ssid"]    = info.wifi_ssid.toString();
+        root["bootloader"]   = info.bootloader.toString();
+        root["android_id"]   = info.android_id.toString();
+        root["boot_id"]      = info.boot_id.toString();
+        root["proc_version"] = info.proc_version.toString();
+        root["mac_address"]  = info.mac_address.toString();
         root["imei"]         = info.imei;
-        root["incremental"]  = std::stoi(info.version.incremental.to<std::string>());
+        root["incremental"]  = info.version.incremental.to<uint32_t>();
         // 创建一个 Json::StyledWriter 对象
         Json::StreamWriterBuilder           writerBuilder;
         std::unique_ptr<Json::StreamWriter> jsonWriter(writerBuilder.newStreamWriter());
         // 将 Json::Value 对象转换为字符串
         jsonWriter->write(root, &stream);
-    } catch(std::exception except) {
+
+    } catch(std::exception& except) {
         spdlog::warn("Failed to {}", except.what());
     }
-    return stream;
-}
-
-std::istream& operator>>(std::istream& stream, Version& version) {
-    ByteArray data;
-    // stream >> version.incremental >> version.release >> version.codename
-    // >> data;
-    // data >> version.sdk;
-
-    return stream;
-}
-
-std::ostream& operator<<(std::ostream& stream, const Version& version) {
-    // ByteArray data = toByteArray(version.sdk);
-    // stream << version.incremental << version.release << version.codename
-    //    << data;
     return stream;
 }
 }; // namespace Flee

@@ -2,6 +2,7 @@
 #define FLEE_CONSTANTS_H
 
 #include <chrono>
+#include <cstddef>
 #include <ctime>
 
 #include <ByteArray.h>
@@ -19,6 +20,11 @@ namespace Flee {
  * @return int64_t
  */
 int64_t getRandomNumber(int64_t min, int64_t max);
+
+#define getRandomByte() std::byte(getRandom<uint8_t>())
+
+template <typename T>
+T getRandom();
 
 /**
  * @brief Get the Random Byte Array object
@@ -63,10 +69,9 @@ std::string getRandom(int length, std::string seed);
  * @brief
  *
  */
-#define getRandomString(length) \
-    getRandom(                  \
-        length,                 \
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+#define getRandomString(length)                                                       \
+    getRandom(length, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY" \
+                      "Z")
 
 /**
  * @brief
@@ -81,6 +86,14 @@ std::string generateUUID();
  * @return uint8_t
  */
 uint8_t luhn(std::string imei);
+
+/**
+ * @brief
+ *
+ * @param uin
+ * @return std::string
+ */
+std::string generateImei(uint64_t uin);
 
 /**
  * @brief

@@ -107,7 +107,7 @@ IncludeCategories:
   - Regex:	'.*'
     Priority:	1
 # 缩进case标签
-IndentCaseLabels:	false
+IndentCaseLabels:	true
 # 缩进宽度
 IndentWidth:	4
 # 函数返回类型换行时，缩进函数声明或函数定义的函数名
@@ -131,9 +131,9 @@ ObjCSpaceBeforeProtocolList:	true
 # 在call(后对函数调用换行的penalty
 PenaltyBreakBeforeFirstCallParameter:	19
 # 在一个注释中引入换行的penalty
-PenaltyBreakComment:	300
+PenaltyBreakComment:	500
 # 第一次在<<前换行的penalty
-PenaltyBreakFirstLessLess:	120
+PenaltyBreakFirstLessLess:	88
 # 在一个字符串字面量中引入换行的penalty
 PenaltyBreakString:	1000
 # 对于每个在行字符数限制之外的字符的penalty

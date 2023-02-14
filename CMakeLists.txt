@@ -4,8 +4,6 @@ project(flee VERSION 0.1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 17)
 
-# set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/module ${CMAKE_MODULE_PATH})
-
 include(CTest)
 enable_testing()
 
@@ -15,22 +13,19 @@ find_package(CryptoPP REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(Boost COMPONENTS system REQUIRED)
-find_package(OpenSSL REQUIRED)
+find_package(Boost COMPONENTS system filesystem iostreams REQUIRED)
 
 include(cmake/ProtobufBuildCpp.cmake)
 
 set(REQUIRED_LIBS_QUALIFIED  ws2_32
         ${PROTOBUF_LIBRARIES} ${PROTOBUF_PROTOC_LIBRARIES}
-        cryptopp-static jsoncpp_lib spdlog::spdlog
-        ${OPENSSL_LIBRARIES})
+        cryptopp-static jsoncpp_lib spdlog::spdlog)
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     MESSAGE( STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}.")
     list(APPEND REQUIRED_LIBS_QUALIFIED ${Boost_LIBRARIES})
 endif()
-
 
 include_directories(include/code)
 include_directories(include/exception)

@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-10 16:01
+ * @LastEditTime: 2023-02-13 18:14
  * @FilePath: \Flee\include\code\QQConfig.h
  * @Description:
  */
@@ -23,7 +23,7 @@ private:
     std::string log_dir;
     std::string data_dir;
     std::string device_dir;
-
+    std::string token_dir;
 public:
     Platform platform = Platform::Android;
 
@@ -49,21 +49,23 @@ public:
     const std::string& getDataDir() const;
 
     const std::string& getDeviceDir() const;
+
+    const std::string& getTokenDir() const;
 };
 
 template <typename T = uint16_t>
-class DataPacket {
+class BuildPackage {
     /* data */
     ByteArray data;
     T         offset;
 
 public:
-    DataPacket(const ByteArray& data, T offset = 0);
+    BuildPackage(const ByteArray& data, T offset = 0);
 
-    DataPacket(const std::string& data, T offset = 0);
+    BuildPackage(const std::string& data, T offset = 0);
 
     template <typename Z>
-    DataPacket(Z data, T offset = 0)
+    BuildPackage(Z data, T offset = 0)
         : data(std::move(ByteArray::from<Z>(data))), offset(offset) {}
 
     T                getOffset() const;
@@ -71,9 +73,9 @@ public:
 };
 
 template <typename T>
-ByteArray& operator<<(ByteArray& array, const DataPacket<T>& packet);
+ByteArray& operator<<(ByteArray& array, const BuildPackage<T>& packet);
 
-#define DataPacketWithLength(data) DataPacket<uint32_t>(data, 4)
+#define BuildPackageWithLength(data) BuildPackage<uint32_t>(data, 4)
 
 };     // namespace Flee
 #endif // FLEE_QQCONFIG_H
