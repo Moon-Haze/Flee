@@ -1,5 +1,16 @@
+<!--
+ * @Author: Moon-Haze swx1126200515@outlook.com
+ * @Date: 2023-01-24 20:42
+ * @LastEditors: Moon-Haze swx1126200515@outlook.com
+ * @LastEditTime: 2023-02-16 13:32
+ * @FilePath: \Flee\README.md
+ * @Description: github 项目描述
+-->
 ## 序言
 #### 开始
+这个项目模仿[mirai](https://github.com/mamoe/mirai')，通过这个项目可以提高自己的C++的编程能力，熟悉c++编程。
 
-这个项目模仿[mirai](https://github.com/mamoe/mirai')，通过这个项目可以提高自己的C++的编程能力。
+之前曾经想过要模仿一次，但是，中途搁置。现在重新拾起这个项目，并且在原来的基础上剥离了QT库，希望提高代码的通用性。将来如果想要接入GUI，可能会考虑添加QT库，同时，也可能封装好C++，设计其他编程语言的接口。
 
+#### 2023.2.16
+至今已将完成部分协议包构建，以及数据包的接收和分割处理，以及数据包控制流转

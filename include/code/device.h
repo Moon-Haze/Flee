@@ -52,8 +52,20 @@ struct BaseDevice {
 
     BaseDevice(const BaseDevice& device);
 
+    /**
+     * @brief 通过 @a uin 创建一个 %BaseDevice
+     *
+     * @param uin qq id
+     * @return BaseDevice 基本的设备class
+     */
     static BaseDevice generateBaseDevice(uint64_t uin);
 
+    /**
+     * @brief 从json文件 @a filename 中读取一个BaseDevice
+     *
+     * @param filename json格式文件的路径
+     * @return BaseDevice 基本的设备class
+     */
     static BaseDevice loadBaseDevice(const std::string& filename);
 };
 

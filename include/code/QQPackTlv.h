@@ -31,7 +31,7 @@ public:
 
     PacketListener& getPacketListener();
     /**
-     * @brief
+     * @brief 构建数据包
      *
      * @param cmd
      * @param body "wtlogin.login" "wtlogin.exchange_emp" "wtlogin.trans_emp"
@@ -41,11 +41,30 @@ public:
      */
     ByteArray buildLoginPacket(std::string cmd, const ByteArray& body,
                                uint8_t type = 2);
-    // buildCode2dPacket(this: BaseClient, cmdid: number, head: number, body: Buffer)
+
+    /**
+     * @brief 构建数据包
+     *
+     * @param cmdid
+     * @param head
+     * @param body
+     * @return ByteArray
+     */
     ByteArray buildCode2dPacket(uint16_t cmdid, uint32_t head, const ByteArray& body);
 
+    /**
+     * @brief 读取 flag 分割接收数据
+     *
+     * @param packet 所要处理的数据
+     */
     void parseFlagPacket(ByteArray& packet);
 
+    /**
+     * @brief sso分割数据包
+     *
+     * @param packet 所要处理的数据
+     * @return DataPacket 分割后封装的数据包
+     */
     DataPacket parseSsoPacket(ByteArray& packet);
 };
 }; // namespace Flee

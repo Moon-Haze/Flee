@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-14 16:48
+ * @LastEditTime: 2023-02-14 19:06
  * @FilePath: \Flee\src\code\QQConfig.cpp
  * @Description:
  */
@@ -23,7 +23,7 @@ QQConfig::QQConfig(uint64_t uin, const std::string& dir)
       data_dir((std::stringstream() << dir << "data/" << uin << '/').str()),
       device_dir(
           (std::stringstream() << data_dir << "device-" << uin << ".json").str()),
-      token_dir((std::stringstream() << data_dir << uin << "/token").str()) {
+      token_dir((std::stringstream() << data_dir  << "token").str()) {
     try {
         // if(!boost::filesystem::exists(log_dir)) {
             // boost::filesystem::create_directories(log_dir);

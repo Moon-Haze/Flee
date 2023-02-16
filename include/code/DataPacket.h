@@ -4,7 +4,7 @@
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
  * @LastEditTime: 2023-02-11 22:07
  * @FilePath: \Flee\include\code\DataPacket.h
- * @Description:
+ * @Description: 接收到的数据经过处理分割后生成的数据包
  */
 #ifndef FLEE_DATAPACKET_H
 #define FLEE_DATAPACKET_H

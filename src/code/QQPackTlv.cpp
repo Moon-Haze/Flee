@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-11 15:15
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-14 18:58
+ * @LastEditTime: 2023-02-16 13:23
  * @FilePath: \Flee\src\code\QQPackTlv.cpp
  * @Description:
  */
@@ -64,7 +64,7 @@ ByteArray QQPackTlv::buildLoginPacket(std::string cmd, const ByteArray& body,
         temp << uint16_t((0x02 << 8) | 0x01) << this->sig.randkey
              << uint32_t((0x131 << 16) | 0x01) << BuildPackage(ecdh.getPublicKey())
              << Tea::encrypt(ecdh.getShareKey(), body);
-
+        // spdlog::info("encrypt {}", temp.toHex());
         /**
             body = new Writer()
                 .writeU8(0x02)
@@ -85,6 +85,7 @@ ByteArray QQPackTlv::buildLoginPacket(std::string cmd, const ByteArray& body,
         _temp_ << uint8_t(0x02) << uint16_t(29 + temp.size()) << uint16_t(8001) << cmdid
                << uint16_t(1) << uint32_t(uin) << uint16_t((3 << 8) | 0x87)
                << uint8_t(0) << uint32_t(2) << uint64_t(0) << temp << uint8_t(0x03);
+        // spdlog::info("size {}", _temp_.toHex());
         temp.clear();
     }
     /**
@@ -184,101 +185,128 @@ ByteArray QQPackTlv::buildCode2dPacket(uint16_t cmdid, uint32_t head,
 
 void QQPackTlv::parseFlagPacket(ByteArray& packet) {
 
-    spdlog::info("{} packet: {}", __FUNCTION__, packet.toHex());
+    // spdlog::info("{} packet: {}", __FUNCTION__, packet.toHex());
     // const flag = pkt.readUInt8(4);
     packet.discardExact(4);
-    auto flag       = packet.read<uint8_t>();
-    auto flag_error = packet.read<uint8_t>();
-    spdlog::info("flag = {}, flag_error = {}", flag, flag_error);
-    if(flag_error) {
-        // spdlog::error("Illegal flag error is {},message: {}", flag_error,
-        // packet.toString());
-        spdlog::error("Illegal flag error is {}", flag_error);
+    auto flag = packet.read<uint8_t>();
 
+    packet.discardExact(1);
+    // spdlog::info("flag = {}", flag);
+
+    // const encrypted = pkt.slice(pkt.readUInt32BE(6) + 6);
+    packet.discardExact(packet.read<int32_t>() - 4);
+    /**
+        let decrypted;
+        switch (flag) {
+            case 0:
+                decrypted = encrypted;
+                break;
+            case 1:
+                decrypted = tea.decrypt(encrypted, this.sig.d2key);
+                break;
+            case 2:
+                decrypted = tea.decrypt(encrypted, constants_1.BUF16);
+                break;
+            default:
+                this.emit("internal.error.token");
+                throw new Error("unknown flag:" + flag);
+        }
+     */
+    ByteArray decrypted;
+    switch(flag) {
+        case 0: {
+            decrypted = packet;
+            break;
+        }
+        case 1: {
+            decrypted = Tea::decrypt(this->sig.d2key, packet);
+            break;
+        }
+        case 2: {
+            decrypted = Tea::decrypt(ByteArray(16), packet);
+            break;
+        }
+        default: {
+            logger->error("{} unknown flag: {}", __FUNCTION__, flag);
+            throw ParsingException("unknown flag:" + std::to_string(flag),
+                                   ParsingException::FlagError);
+        }
+    }
+    packet.clear();
+    // const sso = await parseSso.call(this, decrypted);
+    auto sso = parseSsoPacket(decrypted);
+    logger->info("recv: {} seq: {}", sso.cmd, sso.seq);
+    /**
+        if (this[HANDLERS].has(sso.seq))
+            this[HANDLERS].get(sso.seq)?.(sso.payload);
+        else
+            this.emit("internal.sso", sso.cmd, sso.payload, sso.seq);
+     */
+    if(listener.contain(sso.seq)) {
+        listener.get(sso.seq)(sso.data);
     } else {
-        // const encrypted = pkt.slice(pkt.readUInt32BE(6) + 6);
-        packet.discardExact(packet.read<int32_t>() - 4);
-        /**
-            let decrypted;
-            switch (flag) {
-                case 0:
-                    decrypted = encrypted;
-                    break;
-                case 1:
-                    decrypted = tea.decrypt(encrypted, this.sig.d2key);
-                    break;
-                case 2:
-                    decrypted = tea.decrypt(encrypted, constants_1.BUF16);
-                    break;
-                default:
-                    this.emit("internal.error.token");
-                    throw new Error("unknown flag:" + flag);
-            }
-         */
-        ByteArray decrypted;
-        switch(flag) {
-            case 0: {
-                break;
-            }
-            case 1: {
-                decrypted = Tea::decrypt(this->sig.d2key, packet);
-                break;
-            }
-            case 2: {
-                decrypted = Tea::decrypt(ByteArray(16), packet);
-                break;
-            }
-            default: {
-                logger->error("{} unknown flag: {}", __FUNCTION__, flag);
-                throw ParsingException("unknown flag:" + std::to_string(flag),
-                                       ParsingException::FlagError);
-            }
-        }
-        /**
-             const sso = await parseSso.call(this, decrypted);
-             this.emit("internal.verbose", `recv:${sso.cmd} seq:${sso.seq}`,
-                VerboseLevel.Debug);
-            if (this[HANDLERS].has(sso.seq))
-                 this[HANDLERS].get(sso.seq)?.(sso.payload);
-             else
-                 this.emit("internal.sso", sso.cmd, sso.payload, sso.seq);
-         */
-        auto sso = parseSsoPacket(packet);
-        logger->info("recv: {} seq: {}", sso.cmd, sso.seq);
-        if(listener.contain(sso.seq)) {
-            listener.get(sso.seq)(sso.data);
-        } else {
-            ByteArray temp(sso.data);
-            parseFlagPacket(temp);
-        }
+        ByteArray temp(sso.data);
+        parseFlagPacket(temp);
     }
 }
 DataPacket QQPackTlv::parseSsoPacket(ByteArray& packet) {
 
     spdlog::info("{} packet: {}", __FUNCTION__, packet.toHex());
+    /**
+00 00 00 36 //54=9*4+18=36+18
+00 00 08 BF
+00 00 00 00
+00 00 00 04
+00 00 00 16
+43 6C 69 65 6E74 2E 43 6F 72 72 65 63 74 54 69 6D 65 //18
+00 00 00 08
+2E 99 74 20
+00 00 00 00
+00 00 00 04
+00 00 00 08 //10*4+18=58
+
+63 EB 82 F3
+
+flag=0
+payload = 63 EB 82 F3
+     */
+    /**
+00 00 00 36 //54=36+18
+00 00 08 BF
+00 00 00 00
+*/
 
     ByteArray bytes   = packet.readByteArray(packet.read<uint32_t>() - 4);
     int32_t   seq     = bytes.read<int32_t>();
     int32_t   retcode = bytes.read<int32_t>();
-    /**
-        if (retcode !== 0) {
-            this.emit("internal.error.token");
-            throw new Error("unsuccessful retcode: " + retcode);
-        }
-    */
+    spdlog::info("req: {} retcode: {}", seq, retcode);
     if(retcode != 0) {
         logger->error("unsuccessful retcode: {}", retcode);
         throw ParsingException("unsuccessful retcode: " + std::to_string(retcode),
                                ParsingException::ReturnCodeError);
     }
+    /**
+    00 00 00 04
+    00 00 00 16 //22-4=18
+    43 6C 69 65 6E 74 2E 43 6F 72 72 65 63 74 54 69 6D 65
+    00 00 00 08
+    2E 99 74 20
+    00 00 00 00 flag
+
+    00 00 00 04
+    00 00 00 08
+
+    63 EB 82 F3
+     */
     uint32_t    offset = bytes.read<uint32_t>();
     uint32_t    len    = bytes.read<uint32_t>();
     std::string cmd    = bytes.readString(len - offset);
-    bytes.discardExact(bytes.read<uint32_t>() - offset);
+    bytes.discardExact(bytes.read<uint32_t>() - 4);
     int32_t flag = bytes.read<int32_t>();
     logger->info("{} flag:{}", __FUNCTION__, flag);
     switch(flag) {
         case 0: {
+            // 已完成，不做任何处理即可
             // payload = buf.slice(headlen + 4);
             break;
         }
@@ -295,9 +323,14 @@ DataPacket QQPackTlv::parseSsoPacket(ByteArray& packet) {
             break;
         }
         case 8: {
+            /**
+             * TODO:
+             * 这一部分未完成，还在测试，将来会补全，主要是这一部分的数据分割还不确定
+             *
+             */
             // payload = buf.slice(headlen);
-            //  不全 不知道可以吗
-            if(bytes.size() == 2) {
+            bytes.discardExact(4);
+            if(bytes.size() == 4) {
                 packet = bytes + packet;
             }
             logger->info("compressed flag: {}", flag);

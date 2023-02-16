@@ -133,7 +133,7 @@ template int32_t ByteArray::read<int32_t>();
 template int64_t ByteArray::read<int64_t>();
 
 std::string ByteArray::readString(size_t read_size, size_t index) {
-    if(read_size == 0 || this->size() - index >= read_size) {
+    if(read_size == 0 || (this->size() - index) <= read_size) {
         read_size = this->size();
     }
     std::string str(reinterpret_cast<const char*>(this->data() + index), read_size);
@@ -147,7 +147,7 @@ ByteArray ByteArray::mid(size_t begin, size_t end) const {
 }
 
 ByteArray ByteArray::readByteArray(size_t read_size, size_t index) {
-    if(read_size == 0 || this->size() - index >= read_size) {
+    if(read_size == 0 || (this->size() - index) <= read_size) {
         read_size = this->size();
     }
     ByteArray array;
