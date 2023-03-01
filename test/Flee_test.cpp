@@ -2,12 +2,11 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-25 09:24
+ * @LastEditTime: 2023-02-27 08:52
  * @FilePath: \Flee\test\Flee_test.cpp
  * @Description:
  */
 
-#include "log.h"
 #include <climits>
 #include <cstddef>
 #include <cstdint>
@@ -31,6 +30,5 @@ int main(int argc, char** argv) {
     std::ofstream stream(std::string("test.json"));
     jsonWriter->write(root, &stream);
     stream.close();
-    Flee_Debug << "root=";
     return 0;
 }

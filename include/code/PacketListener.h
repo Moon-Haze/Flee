@@ -16,7 +16,7 @@
 namespace Flee {
 class PacketListener {
 private:
-    using listen_function = std::function<void(const ByteArray&)>;
+    using listen_function = std::function<void(ByteArray&)>;
     std::map<uint32_t, listen_function> func_pool;
     std::mutex                          d_mutex;
 

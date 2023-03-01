@@ -2,13 +2,14 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-11 15:15
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-14 16:54
+ * @LastEditTime: 2023-03-01 20:35
  * @FilePath: \Flee\include\code\QQPackTlv.h
  * @Description:
  */
 #ifndef FLEE_QQPACKETLV_H
 #define FLEE_QQPACKETLV_H
 
+#include "ByteArray.h"
 #include "DataPacket.h"
 #include "PacketListener.h"
 #include "Tlv.h"
@@ -66,6 +67,20 @@ public:
      * @return DataPacket 分割后封装的数据包
      */
     DataPacket parseSsoPacket(ByteArray& packet);
+    /**
+     * @brief
+     *
+     * @param buffer
+     */
+    void ParseQtcode(ByteArray& buffer);
+
+    /**
+     * @brief
+     *
+     * @param buffer
+     * @return std::map<uint8_t, ByteArray>
+     */
+    std::map<uint8_t, ByteArray> readTlv(ByteArray& buffer);
 };
 }; // namespace Flee
 

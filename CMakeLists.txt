@@ -13,7 +13,7 @@ find_package(CryptoPP REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(Boost COMPONENTS system filesystem iostreams log log_setup  REQUIRED)
+find_package(Boost COMPONENTS system filesystem iostreams json REQUIRED)
 
 include(cmake/ProtobufBuildCpp.cmake)
 

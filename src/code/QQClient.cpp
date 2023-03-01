@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-16 11:05
+ * @LastEditTime: 2023-03-01 21:00
  * @FilePath: \Flee\src\code\QQClient.cpp
  * @Description:
  */
@@ -17,6 +17,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <spdlog/common.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -123,25 +124,9 @@ bool QQClient::fetchQrcode() {
     // spdlog::info("send data: {}", body.toHex());
     // spdlog::info("send data: size={}", body.size());
     handler.write(body, [this](std::size_t size) {
-        this->listener.add(this->packet.sig.seq, [](const ByteArray& buffer) {
-            /**
-                payload = tea.decrypt(payload.slice(16, -1), this[ECDH].share_key);
-                const stream = stream_1.Readable.from(payload, { objectMode: false });
-                stream.read(54);
-                const retcode = stream.read(1)[0];
-                const qrsig = stream.read(stream.read(2).readUInt16BE());
-                stream.read(2);
-                const t = readTlv(stream);
-                if (!retcode && t[0x17]) {
-                    this.sig.qrsig = qrsig;
-                    this.emit("internal.qrcode", t[0x17]);
-                }
-                else {
-                    this.emit("internal.error.qrcode",
-               retcode,"获取二维码失败，请重试");
-                }
-             */
-        });
+        this->listener.add(
+            this->packet.sig.seq,
+            std::bind(&QQPackTlv::ParseQtcode, &packet, std::placeholders::_1));
     });
     return false;
 }

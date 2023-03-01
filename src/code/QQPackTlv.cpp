@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-11 15:15
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-16 13:23
+ * @LastEditTime: 2023-03-01 21:13
  * @FilePath: \Flee\src\code\QQPackTlv.cpp
  * @Description:
  */
@@ -178,7 +178,7 @@ ByteArray QQPackTlv::buildCode2dPacket(uint16_t cmdid, uint32_t head,
          << uint32_t(currentTimeSeconds()) << uint8_t(2) << uint16_t(44 + body.size())
          << cmdid << ByteArray(21) << uint8_t(3) << uint16_t(0) << uint16_t(50)
          << uint32_t(this->sig.seq + 1) << uint64_t(0) << body << uint8_t(3);
-    spdlog::info("{} {}", __FUNCTION__, temp.toHex());
+    // spdlog::info("{} {}", __FUNCTION__, temp.toHex());
     // return buildLoginPacket.call(this, "wtlogin.trans_emp", body)
     return std::move(buildLoginPacket("wtlogin.trans_emp", temp));
 }
@@ -245,13 +245,13 @@ void QQPackTlv::parseFlagPacket(ByteArray& packet) {
     if(listener.contain(sso.seq)) {
         listener.get(sso.seq)(sso.data);
     } else {
-        ByteArray temp(sso.data);
-        parseFlagPacket(temp);
+        // ByteArray temp(sso.data);
+        // parseFlagPacket(temp);
+        parseFlagPacket(sso.data);
     }
 }
 DataPacket QQPackTlv::parseSsoPacket(ByteArray& packet) {
-
-    spdlog::info("{} packet: {}", __FUNCTION__, packet.toHex());
+    // spdlog::info("{} packet: {}", __FUNCTION__, packet.toHex());
     /**
 00 00 00 36 //54=9*4+18=36+18
 00 00 08 BF
@@ -342,6 +342,61 @@ payload = 63 EB 82 F3
                                    ParsingException::FlagError);
         }
     }
+    spdlog::info("{} parse data's size is {}", __FUNCTION__, packet.size());
     return { seq, packet, cmd };
+}
+void QQPackTlv::ParseQtcode(ByteArray& buffer) {
+    /**
+        payload = tea.decrypt(payload.slice(16, -1), this[ECDH].share_key);
+        const stream = stream_1.Readable.from(payload, { objectMode: false });
+        stream.read(54);
+        const retcode = stream.read(1)[0];
+        const qrsig = stream.read(stream.read(2).readUInt16BE());
+        stream.read(2);
+        const t = readTlv(stream);
+        if (!retcode && t[0x17]) {
+            this.sig.qrsig = qrsig;
+            this.emit("internal.qrcode", t[0x17]);
+        }
+        else {
+             this.emit("internal.error.qrcode",
+        retcode,"获取二维码失败，请重试");
+        }
+    */
+
+    buffer.discardExact(16);
+    buffer = Tea::decrypt(this->ecdh.getShareKey(), buffer);
+    if(buffer.size() > 54) {
+        buffer = buffer.readByteArray(54);
+    }
+    uint8_t   retcode = buffer.read<uint8_t>();
+    ByteArray qrsig   = buffer.readByteArray(buffer.read<uint16_t>());
+    buffer.discardExact(2);
+    auto t = readTlv(buffer);
+    if((!retcode) && t.count(0x17)) {
+        sig.qrsig = qrsig;
+    } else {
+        this->logger->error("Failed to obtain the QR code. Please try again.");
+    }
+}
+
+std::map<uint8_t, ByteArray> QQPackTlv::readTlv(ByteArray& buffer) {
+    /**
+    function readTlv(r) {
+        const t = {};
+        while (r.readableLength > 2) {
+            const k = r.read(2).readUInt16BE();
+            t[k] = r.read(r.read(2).readUInt16BE());
+        }
+        return t;
+    }
+     */
+    std::map<uint8_t, ByteArray> t;
+    uint8_t                      key = 0;
+    while(buffer.size() > 2) {
+        key    = buffer.read<uint8_t>();
+        t[key] = buffer.readByteArray(buffer.read<uint16_t>());
+    }
+    return t;
 }
 }; // namespace Flee
