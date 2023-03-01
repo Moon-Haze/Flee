@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-11 15:15
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-03-01 21:13
+ * @LastEditTime: 2023-03-01 22:19
  * @FilePath: \Flee\src\code\QQPackTlv.cpp
  * @Description:
  */
@@ -117,7 +117,7 @@ ByteArray QQPackTlv::buildLoginPacket(std::string cmd, const ByteArray& body,
          << BuildPackageWithLength(this->sig.tgt) << BuildPackageWithLength(cmd)
          << BuildPackageWithLength(this->sig.session)
          << BuildPackageWithLength(this->device.imei) << uint32_t(4) << uint16_t(2)
-         << uint32_t(4);
+         << uint32_t(4); // 00 00 00 04 00 02 00 00 00 04
     sso << BuildPackageWithLength(temp) << BuildPackageWithLength(_temp_);
     temp.clear();
     _temp_.clear();
@@ -127,6 +127,7 @@ ByteArray QQPackTlv::buildLoginPacket(std::string cmd, const ByteArray& body,
         else if (type === 2)
             sso = tea.encrypt(sso, BUF16)
     */
+    spdlog::info("let sso={}", sso.toHex());
     if(type == 1) {
         sso = Tea::encrypt(this->sig.d2key, sso);
     } else if(type == 2) {
@@ -144,6 +145,7 @@ ByteArray QQPackTlv::buildLoginPacket(std::string cmd, const ByteArray& body,
             .read()
         ).read()
      */
+    spdlog::info("sso={}", sso.toHex());
     _temp_ << uint32_t(0x0A) << type << BuildPackageWithLength(this->sig.d2)
            << uint8_t(0) << BuildPackageWithLength(std::to_string(uin)) << sso;
     sso.clear();
