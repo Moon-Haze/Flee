@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-09 13:33
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-16 12:11
+ * @LastEditTime: 2023-03-04 16:31
  * @FilePath: \Flee\include\code\ByteArray.h
  * @Description: Flee库的数据存储class
  */
@@ -131,11 +131,13 @@ public:
      */
     std::string readString(size_t read_size = 0, size_t index = 0);
     /**
-     * @brief 删除从%ByteArrayy的起始位置，长度为 @a delete_size
+     * @brief 删除从%ByteArrayy的起始位置/结尾位置，长度为 @a delete_size
      *
      * @param delete_size 所要删除的数据长度
+     * @param is_start ture  %ByteArrayy的起始位置
+     * @param is_start false %ByteArrayy的结尾位置
      */
-    iterator discardExact(size_t delete_size);
+    iterator discardExact(size_t delete_size, bool is_start = true);
     /**
      * @brief 将数据转化为 hex进制的字符串
      *

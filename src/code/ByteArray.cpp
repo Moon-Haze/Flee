@@ -157,12 +157,13 @@ ByteArray ByteArray::readByteArray(size_t read_size, size_t index) {
     return std::move(array);
 }
 
-ByteArray::iterator ByteArray::discardExact(size_t delete_size) {
+ByteArray::iterator ByteArray::discardExact(size_t delete_size, bool is_start) {
     if(delete_size > size()) {
         this->clear();
         return this->begin();
     }
-    return erase(begin(), begin() + delete_size);
+    return is_start ? erase(begin(), begin() + delete_size)
+                    : erase(end() - delete_size, end());
 }
 
 std::string ByteArray::toHex() const {

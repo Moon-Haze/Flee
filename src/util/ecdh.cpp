@@ -1,8 +1,19 @@
+/*
+ * @Author: Moon-Haze swx1126200515@outlook.com
+ * @Date: 2023-01-24 20:42
+ * @LastEditors: Moon-Haze swx1126200515@outlook.com
+ * @LastEditTime: 2023-03-04 16:44
+ * @FilePath: \Flee\src\util\ecdh.cpp
+ * @Description:
+ */
 #include "ecdh.h"
+#include "ByteArray.h"
+#include "constants.h"
 #include <cryptopp/oids.h>
 #include <cryptopp/osrng.h>
 #include <iostream>
 #include <spdlog/spdlog.h>
+#include <utility>
 
 #define CURVE CryptoPP::ASN1::secp256r1() // prime256v1
 
@@ -13,6 +24,7 @@
         "FB 33 50 5E 63 EF C5 D7 8E E4 E0 A4 59 50 33 B9 3D 02 09 " \
         "6D CD 31 90 27 92 11 "                                     \
         "F7 B4 F6 78 50 79 E1 90 04 AA 0E 03 BC")
+
 #define DEFAULTSHAREKEY \
     Flee::ByteArray::fromHex("C1 29 ED BA 73 6F 49 09 EC C4 AB 8E 01 0F 46 A3")
 
@@ -26,40 +38,29 @@ ByteArray ECDH::keyStr{ ByteArray::fromHex(
 ECDH::ECDH()
     : domain(CURVE),
       privateKey(domain.PrivateKeyLength()),
-      publicKey(DEFAULTPUBLICKEY),
-      shareKey(DEFAULTSHAREKEY),
-      maskedShareKey(domain.AgreedValueLength()) {}
+      publicKey(domain.PublicKeyLength()),
+      shareKey(0) {
+
+    CryptoPP::AutoSeededX917RNG<CryptoPP::AES> rng;
+    domain.GenerateKeyPair(rng, ( unsigned char* )privateKey.data(),
+                           ( unsigned char* )publicKey.data());
+
+    ByteArray share_key(32);
+    if(!domain.Agree(( unsigned char* )share_key.data(),
+                     ( unsigned char* )privateKey.data(),
+                     ( unsigned char* )ECDH::keyStr.data())) {
+        spdlog::error("ERROR in generating ECDH's Key Pair.");
+    } else {
+        share_key.discardExact(16, false);
+        shareKey = std::move(md5(share_key));
+    }
+}
 
 ECDH::ECDH(const ECDH& other)
     : privateKey(other.privateKey),
       publicKey(other.publicKey),
       shareKey(other.shareKey),
       domain(other.domain) {}
-
-ECDH::ECDH(ByteArray privateKey, ByteArray publicKey, ByteArray shareKey,
-           ByteArray maskedShareKey, CryptoPP::ECDH<CryptoPP::ECP>::Domain domain)
-    : privateKey(std::move(privateKey)),
-      publicKey(std::move(publicKey)),
-      shareKey(std::move(shareKey)),
-      maskedShareKey(std::move(maskedShareKey)),
-      domain(std::move(domain)) {}
-
-ECDH ECDH::generateKeyPair() {
-    CryptoPP::AutoSeededX917RNG<CryptoPP::AES> rng;
-    CryptoPP::ECDH<CryptoPP::ECP>::Domain      dh(CURVE);
-    ByteArray privateKey(dh.PrivateKeyLength()), publicKey(dh.PublicKeyLength()),
-        shareKey(dh.AgreedValueLength());
-    try {
-        dh.GenerateKeyPair(rng, ( unsigned char* )privateKey.data(),
-                           ( unsigned char* )publicKey.data());
-
-        dh.Agree(( unsigned char* )shareKey.data(), ( unsigned char* )privateKey.data(),
-                 ( unsigned char* )ECDH::keyStr.data());
-    } catch(std::exception& e) {
-        spdlog::error("ERROR in generating ECDH's Key Pair \n{}", e.what());
-    }
-    return ECDH{ privateKey, publicKey, DEFAULTSHAREKEY, shareKey, dh };
-}
 
 bool ECDH::isDefault() const {
     return this->publicKey == DEFAULTPUBLICKEY && this->shareKey == DEFAULTSHAREKEY;
@@ -94,19 +95,8 @@ const ByteArray& ECDH::getPrivateKey() const {
     return privateKey;
 }
 
-const ByteArray& ECDH::getMaskedShareKey() const {
-    return maskedShareKey;
-}
-
-void ECDH::setMaskedShareKey(const ByteArray& value) {
-    ECDH::maskedShareKey = value;
-}
-
 const ByteArray& ECDH::getKeyStr() {
     return keyStr;
 }
 
-void ECDH::setKeyStr(const ByteArray& value) {
-    ECDH::keyStr = value;
-}
 } // namespace Flee

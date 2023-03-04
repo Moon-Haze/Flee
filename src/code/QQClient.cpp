@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-03-01 21:40
+ * @LastEditTime: 2023-03-04 16:53
  * @FilePath: \Flee\src\code\QQClient.cpp
  * @Description:
  */
@@ -119,9 +119,7 @@ bool QQClient::fetchQrcode() {
          << packet.t33() << packet.t35();
     // const pkt = buildCode2dPacket.call(this, 0x31, 0x11100, body)
     body = packet.buildCode2dPacket(0x31, 0x11100, body);
-    /**
-     */
-    spdlog::info("send data: {}", body.toHex());
+
     // spdlog::info("send data: size={}", body.size());
     handler.write(body, [this](std::size_t size) {
         this->listener.add(

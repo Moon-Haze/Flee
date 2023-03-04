@@ -14,8 +14,6 @@ private:
     ByteArray                             maskedShareKey;
 
     static ByteArray keyStr;
-    explicit ECDH(ByteArray privateKey, ByteArray publicKey, ByteArray shareKey,
-                  ByteArray maskedShareKey, CryptoPP::ECDH<CryptoPP::ECP>::Domain domain);
 
 public:
     explicit ECDH();
@@ -34,13 +32,7 @@ public:
 
     void setShareKey(const ByteArray& value);
 
-    const ByteArray& getMaskedShareKey() const;
-
-    void setMaskedShareKey(const ByteArray& maskedShareKey);
-
     static const ByteArray& getKeyStr();
-
-    static void setKeyStr(const ByteArray& keyStr);
 
     bool isDefault() const;
 
@@ -55,14 +47,7 @@ public:
      * @return true 如果成功，则返回true;
      * @return false 如果失败，则返回false。
      */
-    bool calculateShareKeyByPublicKey(const ByteArray& pubKey);
-
-    /**
-     * @brief 生成ECDH密钥对
-     *
-     * @return ECDH 生成结果
-     */
-    static ECDH generateKeyPair();
+    bool calculateShareKey(const ByteArray& pubKey);
 };
 } // namespace Flee
 #endif // FLEE_ECDH_H

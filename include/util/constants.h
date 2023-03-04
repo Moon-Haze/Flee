@@ -93,7 +93,7 @@ uint8_t luhn(std::string imei);
  * @param uin
  * @return std::string
  */
-std::string generateImei(uint64_t uin);
+std::string generateImei(uint32_t uin);
 
 /**
  * @brief

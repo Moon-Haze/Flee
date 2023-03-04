@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-11 15:15
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-03-01 20:35
+ * @LastEditTime: 2023-03-04 16:45
  * @FilePath: \Flee\include\code\QQPackTlv.h
  * @Description:
  */
@@ -19,7 +19,7 @@
 namespace Flee {
 class QQPackTlv : public Tlv {
 
-    ECDH ecdh{ ECDH::generateKeyPair() };
+    ECDH ecdh{};
 
     PacketListener listener;
     // /* logger */

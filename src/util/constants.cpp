@@ -73,10 +73,10 @@ uint8_t luhn(std::string imei) {
     }
     return (10 - sum % 10) % 10;
 }
-std::string generateImei(uint64_t uin) {
+std::string generateImei(uint32_t uin) {
     std::string  imei    = uin % 2 ? "86" : "35";
     unsigned int a       = uin >> 16;
-    unsigned int b       = uin & 0x0000FFFF;
+    unsigned int b       = uin & 0xFFFFFF;
     std::string  uin_str = std::to_string(uin);
     if(a > 9999) {
         a = a / 10;
