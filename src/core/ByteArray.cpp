@@ -3,6 +3,7 @@
 #include <codecvt>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <iomanip>
 #include <regex>
@@ -157,18 +158,21 @@ ByteArray ByteArray::readByteArray(size_t read_size, size_t index) {
     return std::move(array);
 }
 
-ByteArray::iterator ByteArray::discardExact(size_t delete_size, bool is_start) {
-    if(delete_size > size()) {
+ByteArray::iterator ByteArray::discardExact(int64_t delete_size) {
+    if(std::abs(delete_size) > size()) {
         this->clear();
         return this->begin();
     }
-    return is_start ? erase(begin(), begin() + delete_size)
-                    : erase(end() - delete_size, end());
+    return (delete_size > 0) ? erase(begin(), begin() + delete_size)
+                             : erase(end() + delete_size, end());
 }
 
 std::string ByteArray::toHex() const {
     std::stringstream ss;
-    ss << (*this);
+    ss << std::hex << std::uppercase << std::setfill('0');
+    for(auto it = begin(); it != end(); ++it) {
+        ss << std::setw(2) << std::to_integer<short>(*it) << ' ';
+    }
     return ss.str();
 }
 
@@ -178,11 +182,7 @@ ByteArray operator+(const ByteArray& value_1, const ByteArray& value_2) {
     return std::move(bytes);
 }
 std::ostream& operator<<(std::ostream& stream, const ByteArray& array) {
-    stream << std::hex << std::uppercase << std::setfill('0');
-    for(auto it = array.begin(); it != array.end(); ++it) {
-        stream << std::setw(2) << std::to_integer<short>(*it) << ' ';
-    }
-    stream << std::dec;
+    stream << array.toString();
     return stream;
 }
 std::istream& operator>>(std::istream& stream, Flee::ByteArray& array) {

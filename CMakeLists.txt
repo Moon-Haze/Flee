@@ -27,8 +27,10 @@ if(Boost_FOUND)
     list(APPEND REQUIRED_LIBS_QUALIFIED ${Boost_LIBRARIES})
 endif()
 
-include_directories(include/code)
+include_directories(include/core)
 include_directories(include/exception)
+include_directories(include/hander)
+include_directories(include/packet)
 include_directories(include/util)
 include_directories(proto)
 include_directories(${OPENSSL_INCLUDE_DIR})
@@ -37,18 +39,16 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${JSON_INC_PATH})
 # include_directories(${CryptoPP_INCLUDE_DIRS})
 
-aux_source_directory(src/code CODE_CPP_FILE)
-aux_source_directory(src/util UTIL_CPP_FILE)
-aux_source_directory(src/exception EXCEPTION_CPP_FILE)
+file(GLOB_RECURSE All_CPP_FILES src/*.cpp src/*.c)
+
 
 # 生成 ***.proto 文件的 C++ 源代码
 protobuf_generate_cpp_to(PROTO_SRCS PROTO_HDRS proto)
 
 # message("${PROTO_SRCS} ${PROTO_HDRS}")
 
-set(All_CPP_FILES ${CODE_CPP_FILE} ${UTIL_CPP_FILE} ${EXCEPTION_CPP_FILE} ${PROTO_SRCS})
 # 链接所有代码
-add_library(${PROJECT_NAME} SHARED ${All_CPP_FILES})
+add_library(${PROJECT_NAME} SHARED ${All_CPP_FILES} ${PROTO_SRCS})
 
 target_link_libraries(${PROJECT_NAME} ${REQUIRED_LIBS_QUALIFIED})
 

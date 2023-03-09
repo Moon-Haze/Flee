@@ -2,8 +2,8 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-11 15:15
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-03-04 16:45
- * @FilePath: \Flee\include\code\QQPackTlv.h
+ * @LastEditTime: 2023-03-04 20:56
+ * @FilePath: \Flee\include\packet\QQPackTlv.h
  * @Description:
  */
 #ifndef FLEE_QQPACKETLV_H
@@ -19,15 +19,13 @@
 namespace Flee {
 class QQPackTlv : public Tlv {
 
-    ECDH ecdh{};
-
     PacketListener listener;
     // /* logger */
     std::shared_ptr<spdlog::logger> logger;
 
 public:
     using Tlv::Tlv;
-
+    ECDH ecdh{};
     void setLogger(std::shared_ptr<spdlog::logger> logger);
 
     PacketListener& getPacketListener();
@@ -67,20 +65,14 @@ public:
      * @return DataPacket 分割后封装的数据包
      */
     DataPacket parseSsoPacket(ByteArray& packet);
-    /**
-     * @brief
-     *
-     * @param buffer
-     */
-    void ParseQtcode(ByteArray& buffer);
 
     /**
      * @brief
      *
      * @param buffer
-     * @return std::map<uint8_t, ByteArray>
+     * @return std::map<uint16_t, ByteArray>
      */
-    std::map<uint8_t, ByteArray> readTlv(ByteArray& buffer);
+    static std::map<uint16_t, ByteArray> readTlv(ByteArray& buffer);
 };
 }; // namespace Flee
 

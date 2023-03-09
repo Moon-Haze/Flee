@@ -2,8 +2,8 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-12 18:51
- * @FilePath: \Flee\include\code\Tlv.h
+ * @LastEditTime: 2023-03-04 20:51
+ * @FilePath: \Flee\include\packet\Tlv.h
  * @Description:
  */
 #ifndef FLEE_TLV_H
@@ -28,29 +28,20 @@ public:
     Device         device;
 
 public:
-    explicit Tlv(uint64_t uin, const Platform& platform, const std::string& device_file)
-        : sig(uin),
-          apk(APK::getApk(platform)),
-          device(std::move(Device::getDevice(uin, device_file))) {}
+    explicit Tlv(uint64_t uin, const Platform& platform,
+                 const std::string& device_file);
 
-    explicit Tlv(const Tlv& other)
-        : sig(other.sig), apk(other.apk), device(other.device) {}
+    explicit Tlv(const Tlv& other);
 
-    uint64_t getUin() const {
-        return uin;
-    }
+    uint64_t getUin() const;
 
-    void setPassword(const ByteArray& value) {
-        password = value;
-    }
+    void setPassword(const ByteArray& value);
 
-    void setPassword(const std::string& value) {
-        password = md5(value);
-    }
+    void setPassword(const std::string& value);
 
-    ByteArray getPassword() const {
-        return password;
-    }
+    const ByteArray& getPassword() const;
+
+    AccountSecrets& getSig();
 
     ByteArray t01() const;
     ByteArray t08() const;

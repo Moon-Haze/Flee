@@ -1,8 +1,8 @@
 #include "Tlv.h"
 
+#include "BuildPackage.h"
 #include "ByteArray.h"
 #include "DevInfo.pb.h"
-#include "QQConfig.h"
 #include "QQProtocol.h"
 #include "constants.h"
 #include "tea.h"
@@ -12,6 +12,33 @@
 #include <utility>
 
 namespace Flee {
+
+Tlv::Tlv(uint64_t uin, const Platform& platform, const std::string& device_file)
+    : sig(uin),
+      apk(APK::getApk(platform)),
+      device(std::move(Device::getDevice(uin, device_file))) {}
+
+Tlv::Tlv(const Tlv& other) : sig(other.sig), apk(other.apk), device(other.device) {}
+
+uint64_t Tlv::getUin() const {
+    return uin;
+}
+
+void Tlv::setPassword(const ByteArray& value) {
+    password = value;
+}
+
+void Tlv::setPassword(const std::string& value) {
+    password = md5(value);
+}
+
+const ByteArray& Tlv::getPassword() const {
+    return password;
+}
+
+AccountSecrets& Tlv::getSig() {
+    return sig;
+}
 
 ByteArray Tlv::t01() const {
     /**

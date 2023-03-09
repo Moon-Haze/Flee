@@ -2,15 +2,16 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42:18
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-16 11:08
- * @FilePath: \Flee\include\code\QQClient.h
+ * @LastEditTime: 2023-03-04 21:25
+ * @FilePath: \Flee\include\core\QBaseClient.h
  * @description:
  */
-#ifndef FLEE_QQCLIENT_H
-#define FLEE_QQCLIENT_H
+#ifndef FLEE_QBASECLIENT_H
+#define FLEE_QBASECLIENT_H
 
 #include "ByteArray.h"
-#include "NetworkHandler.h"
+#include "LogInhander.h"
+#include "NetworkService.h"
 #include "PacketListener.h"
 #include "QQConfig.h"
 #include "QQPackTlv.h"
@@ -19,7 +20,7 @@
 
 namespace Flee {
 
-class QQClient {
+class QBaseClient {
 
     /* data */
     QQConfig  config;
@@ -27,15 +28,17 @@ class QQClient {
 
     /* network */
     boost::asio::io_service io_service{};
-    NetworkHandler          handler;
+    NetworkService          netService;
 
     /* listener */
     PacketListener& listener = packet.getPacketListener();
     /* logger */
     std::shared_ptr<spdlog::logger> logger;
+    /* hander*/
+    LogInHander loginHander{};
 
 public:
-    explicit QQClient(uint64_t uin);
+    explicit QBaseClient(uint64_t uin);
     void login();
 
 private:
@@ -75,6 +78,8 @@ private:
      *
      */
     void queryQrcodeResult();
+
+    void parseQtcode(ByteArray& buffer);
 };
 };     // namespace Flee
-#endif // FLEE_QQCLIENT_H
+#endif // FLEE_QBASECLIENT_H

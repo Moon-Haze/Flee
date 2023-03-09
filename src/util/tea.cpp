@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-14 20:01
+ * @LastEditTime: 2023-03-04 18:33
  * @FilePath: \Flee\src\util\tea.cpp
  * @@Description::
  */
@@ -120,8 +120,8 @@ ByteArray Tea::decrypt(const ByteArray& key, const ByteArray& value) {
     assert(value.size() % 8 == 0);
     ByteArray data = _decode_(value, key.to<uint32_t>(), key.to<uint32_t>(4),
                               key.to<uint32_t>(8), key.to<uint32_t>(12));
-    data.erase(data.begin(), data.begin() + ((static_cast<char>(data.at(0)) & 7) + 3));
-    data.erase(data.end() - 7, data.end());
+    data.discardExact((static_cast<char>(data.at(0)) & 7) + 3);
+    data.discardExact(-7);
     return std::move(data);
 }
 

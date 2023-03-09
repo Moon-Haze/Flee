@@ -2,12 +2,12 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-07 13:28
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-14 17:14
- * @FilePath: \Flee\src\code\NetworkHandler.cpp
+ * @LastEditTime: 2023-03-04 21:20
+ * @FilePath: \Flee\src\core\NetworkService.cpp
  * @Description:
  */
 
-#include "NetworkHandler.h"
+#include "NetworkService.h"
 #include "ByteArray.h"
 #include "NetworkException.h"
 #include <boost/asio/read.hpp>
@@ -23,10 +23,10 @@
 
 namespace Flee {
 
-NetworkHandler::NetworkHandler(boost::asio::io_service& io_service)
+NetworkService::NetworkService(boost::asio::io_service& io_service)
     : io_service(io_service), socket(io_service) {}
 
-bool NetworkHandler::connect(const std::string& host, const std::string& port) {
+bool NetworkService::connect(const std::string& host, const std::string& port) {
     boost::asio::ip::tcp::resolver::query query(host, port);
     boost::asio::ip::tcp::resolver        resolver{ io_service };
     boost::system::error_code             ec;
@@ -47,7 +47,7 @@ bool NetworkHandler::connect(const std::string& host, const std::string& port) {
         }
     }
 }
-bool NetworkHandler::connect(const std::string& host, uint_least16_t port) {
+bool NetworkService::connect(const std::string& host, uint_least16_t port) {
     boost::system::error_code      ec;
     boost::asio::ip::tcp::endpoint endpoint(
         boost::asio::ip::address_v4::from_string(host), port);
@@ -62,7 +62,7 @@ bool NetworkHandler::connect(const std::string& host, uint_least16_t port) {
     }
 }
 
-bool NetworkHandler::reconnect() {
+bool NetworkService::reconnect() {
     boost::system::error_code ec;
     socket.connect(*iter, ec);
     if(ec) {
@@ -76,7 +76,7 @@ bool NetworkHandler::reconnect() {
     }
 }
 
-void NetworkHandler::write(const ByteArray&                 buffer,
+void NetworkService::write(const ByteArray&                 buffer,
                            std::function<void(std::size_t)> func) {
     boost::system::error_code ec;
     std::size_t               write_size;
@@ -95,7 +95,7 @@ void NetworkHandler::write(const ByteArray&                 buffer,
     }
 }
 
-void NetworkHandler::async_write(const ByteArray&                 buffer,
+void NetworkService::async_write(const ByteArray&                 buffer,
                                  std::function<void(std::size_t)> func) {
 
     if(socket.is_open()) {
@@ -115,14 +115,14 @@ void NetworkHandler::async_write(const ByteArray&                 buffer,
     }
 }
 
-void NetworkHandler::async_read(std::function<void(ByteArray&)> func) {
+void NetworkService::async_read(std::function<void(ByteArray&)> func) {
     socket.async_read_some(boost::asio::buffer(buffer),
-                           std::bind(&NetworkHandler::onReadToPacket, this,
+                           std::bind(&NetworkService::onReadToPacket, this,
                                      std::placeholders::_1, std::placeholders::_2,
                                      func));
 }
 
-void NetworkHandler::onReadToPacket(boost::system::error_code ec, std::size_t read_size,
+void NetworkService::onReadToPacket(boost::system::error_code ec, std::size_t read_size,
                                     std::function<void(ByteArray&)> func) {
     static uint16_t ec_size = 0;
     if(ec) {
@@ -130,13 +130,15 @@ void NetworkHandler::onReadToPacket(boost::system::error_code ec, std::size_t re
                      ec.message());
     } else {
         socket.async_read_some(boost::asio::buffer(buffer),
-                               std::bind(&NetworkHandler::onReadToPacket, this,
+                               std::bind(&NetworkService::onReadToPacket, this,
                                          std::placeholders::_1, std::placeholders::_2,
                                          func));
         if(read_size > 0) {
             spdlog::info("Network recevice data: size = {}", read_size);
+
             std::move(buffer.begin(), buffer.begin() + read_size,
                       std::back_inserter(packet_buffer));
+            // spdlog::info("packet buffer: {}", packet_buffer.toHex());
             // 分割数据包
             uint32_t length = 0;
             while((length = (packet_buffer.read<uint32_t>() - 4))
@@ -155,7 +157,7 @@ void NetworkHandler::onReadToPacket(boost::system::error_code ec, std::size_t re
     }
 }
 
-void NetworkHandler::close() {
+void NetworkService::close() {
     boost::system::error_code ec;
     io_service.stop();
     socket.close(ec);
@@ -164,7 +166,7 @@ void NetworkHandler::close() {
     }
 }
 
-NetworkHandler::~NetworkHandler() {
+NetworkService::~NetworkService() {
     this->close();
 }
 

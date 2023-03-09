@@ -2,15 +2,15 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-11 15:15
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-03-04 16:52
- * @FilePath: \Flee\src\code\QQPackTlv.cpp
+ * @LastEditTime: 2023-03-04 21:45
+ * @FilePath: \Flee\src\packet\QQPackTlv.cpp
  * @Description:
  */
 #include "QQPackTlv.h"
+#include "BuildPackage.h"
 #include "ByteArray.h"
 #include "DataPacket.h"
 #include "ParsingException.h"
-#include "QQConfig.h"
 #include "tea.h"
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <spdlog/spdlog.h>
 #include <string>
+#include <utility>
 
 namespace Flee {
 
@@ -249,30 +250,6 @@ void QQPackTlv::parseFlagPacket(ByteArray& packet) {
 }
 DataPacket QQPackTlv::parseSsoPacket(ByteArray& packet) {
     // spdlog::info("{} packet: {}", __FUNCTION__, packet.toHex());
-    /**
-00 00 00 36 //54=9*4+18=36+18
-00 00 08 BF
-00 00 00 00
-00 00 00 04
-00 00 00 16
-43 6C 69 65 6E74 2E 43 6F 72 72 65 63 74 54 69 6D 65 //18
-00 00 00 08
-2E 99 74 20
-00 00 00 00
-00 00 00 04
-00 00 00 08 //10*4+18=58
-
-63 EB 82 F3
-
-flag=0
-payload = 63 EB 82 F3
-     */
-    /**
-00 00 00 36 //54=36+18
-00 00 08 BF
-00 00 00 00
-*/
-
     ByteArray bytes   = packet.readByteArray(packet.read<uint32_t>() - 4);
     int32_t   seq     = bytes.read<int32_t>();
     int32_t   retcode = bytes.read<int32_t>();
@@ -282,29 +259,18 @@ payload = 63 EB 82 F3
         throw ParsingException("unsuccessful retcode: " + std::to_string(retcode),
                                ParsingException::ReturnCodeError);
     }
-    /**
-    00 00 00 04
-    00 00 00 16 //22-4=18
-    43 6C 69 65 6E 74 2E 43 6F 72 72 65 63 74 54 69 6D 65
-    00 00 00 08
-    2E 99 74 20
-    00 00 00 00 flag
-
-    00 00 00 04
-    00 00 00 08
-
-    63 EB 82 F3
-     */
     uint32_t    offset = bytes.read<uint32_t>();
     uint32_t    len    = bytes.read<uint32_t>();
     std::string cmd    = bytes.readString(len - offset);
     bytes.discardExact(bytes.read<uint32_t>() - 4);
     int32_t flag = bytes.read<int32_t>();
     logger->info("{} flag:{}", __FUNCTION__, flag);
+    // spdlog::info("payload {}", bytes.toHex());
     switch(flag) {
         case 0: {
             // 已完成，不做任何处理即可
             // payload = buf.slice(headlen + 4);
+            packet.discardExact(4);
             break;
         }
         case 1: {
@@ -312,7 +278,7 @@ payload = 63 EB 82 F3
             boost::iostreams::filtering_streambuf<boost::iostreams::input> inbuf;
             inbuf.push(boost::iostreams::zlib_decompressor());
             inbuf.push(boost::iostreams::basic_array_source<char>(
-                reinterpret_cast<char*>(packet.data()), packet.size()));
+                reinterpret_cast<char*>(packet.data() + 4), packet.size() - 4));
             packet.clear();
             std::stringstream ss_decomp;
             boost::iostreams::copy(inbuf, ss_decomp);
@@ -323,14 +289,8 @@ payload = 63 EB 82 F3
             /**
              * TODO:
              * 这一部分未完成，还在测试，将来会补全，主要是这一部分的数据分割还不确定
-             *
+             * 2023.3.4 发现应该不做处理
              */
-            // payload = buf.slice(headlen);
-            bytes.discardExact(4);
-            if(bytes.size() == 4) {
-                packet = bytes + packet;
-            }
-            logger->info("compressed flag: {}", flag);
             break;
         }
         default: {
@@ -342,42 +302,8 @@ payload = 63 EB 82 F3
     spdlog::info("{} parse data's size is {}", __FUNCTION__, packet.size());
     return { seq, packet, cmd };
 }
-void QQPackTlv::ParseQtcode(ByteArray& buffer) {
-    /**
-        payload = tea.decrypt(payload.slice(16, -1), this[ECDH].share_key);
-        const stream = stream_1.Readable.from(payload, { objectMode: false });
-        stream.read(54);
-        const retcode = stream.read(1)[0];
-        const qrsig = stream.read(stream.read(2).readUInt16BE());
-        stream.read(2);
-        const t = readTlv(stream);
-        if (!retcode && t[0x17]) {
-            this.sig.qrsig = qrsig;
-            this.emit("internal.qrcode", t[0x17]);
-        }
-        else {
-             this.emit("internal.error.qrcode",
-        retcode,"获取二维码失败，请重试");
-        }
-    */
 
-    buffer.discardExact(16);
-    buffer = Tea::decrypt(this->ecdh.getShareKey(), buffer);
-    if(buffer.size() > 54) {
-        buffer = buffer.readByteArray(54);
-    }
-    uint8_t   retcode = buffer.read<uint8_t>();
-    ByteArray qrsig   = buffer.readByteArray(buffer.read<uint16_t>());
-    buffer.discardExact(2);
-    auto t = readTlv(buffer);
-    if((!retcode) && t.count(0x17)) {
-        sig.qrsig = qrsig;
-    } else {
-        this->logger->error("Failed to obtain the QR code. Please try again.");
-    }
-}
-
-std::map<uint8_t, ByteArray> QQPackTlv::readTlv(ByteArray& buffer) {
+std::map<uint16_t, ByteArray> QQPackTlv::readTlv(ByteArray& buffer) {
     /**
     function readTlv(r) {
         const t = {};
@@ -388,12 +314,12 @@ std::map<uint8_t, ByteArray> QQPackTlv::readTlv(ByteArray& buffer) {
         return t;
     }
      */
-    std::map<uint8_t, ByteArray> t;
-    uint8_t                      key = 0;
+    std::map<uint16_t, ByteArray> t;
+    uint16_t                      key = 0;
     while(buffer.size() > 2) {
-        key    = buffer.read<uint8_t>();
+        key    = buffer.read<uint16_t>();
         t[key] = buffer.readByteArray(buffer.read<uint16_t>());
     }
-    return t;
+    return std::move(t);
 }
 }; // namespace Flee

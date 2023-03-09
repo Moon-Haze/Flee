@@ -2,8 +2,8 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-09 13:33
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-03-04 16:31
- * @FilePath: \Flee\include\code\ByteArray.h
+ * @LastEditTime: 2023-03-04 21:35
+ * @FilePath: \Flee\include\core\ByteArray.h
  * @Description: Flee库的数据存储class
  */
 #ifndef FLEE_BYTEARRAY_H
@@ -137,7 +137,7 @@ public:
      * @param is_start ture  %ByteArrayy的起始位置
      * @param is_start false %ByteArrayy的结尾位置
      */
-    iterator discardExact(size_t delete_size, bool is_start = true);
+    iterator discardExact(int64_t delete_size);
     /**
      * @brief 将数据转化为 hex进制的字符串
      *

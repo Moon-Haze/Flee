@@ -2,12 +2,12 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-02-07 13:28
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-16 13:16
- * @FilePath: \Flee\include\code\NetworkHandler.h
+ * @LastEditTime: 2023-03-04 20:08
+ * @FilePath: \Flee\include\core\NetworkService.h
  * @Description: 封装 ASIO 的网络接口
  */
-#ifndef FLEE_NETWORKHANDER_H
-#define FLEE_NETWORKHANDER_H
+#ifndef FLEE_NETWORKSERVICE_H
+#define FLEE_NETWORKSERVICE_H
 
 #include "ByteArray.h"
 #include <array>
@@ -20,22 +20,22 @@
 
 namespace Flee {
 
-class NetworkHandler {
+class NetworkService {
 
     boost::asio::ip::tcp::socket socket;
     boost::asio::io_service&     io_service;
     /* 数据接收解析缓存 */
-    std::array<std::byte, 512> buffer;
-    ByteArray                  packet_buffer;
+    std::array<std::byte, 1024> buffer;
+    ByteArray                   packet_buffer;
     /* network thread */
     // std::thread* network_thread = nullptr;
     /* IP地址 */
     boost::asio::ip::tcp::resolver::iterator iter{};
 
 public:
-    explicit NetworkHandler(boost::asio::io_service& io_service);
+    explicit NetworkService(boost::asio::io_service& io_service);
 
-    ~NetworkHandler();
+    ~NetworkService();
 
     bool connect(const std::string& host, const std::string& port);
 
@@ -56,4 +56,4 @@ public:
 };
 
 };     // namespace Flee
-#endif // FLEE_NETWORKHANDER_H
+#endif // FLEE_NETWORKSERVICE_H

@@ -2,15 +2,17 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-03-04 16:53
- * @FilePath: \Flee\src\code\QQClient.cpp
+ * @LastEditTime: 2023-03-04 21:28
+ * @FilePath: \Flee\src\core\QBaseClient.cpp
  * @Description:
  */
 
-#include "QQClient.h"
+#include "QBaseClient.h"
+#include "BuildPackage.h"
 #include "ByteArray.h"
-#include "NetworkHandler.h"
 #include "QQConfig.h"
+#include "QQPackTlv.h"
+#include "tea.h"
 #include <corecrt.h>
 #include <cstddef>
 #include <cstdint>
@@ -28,10 +30,10 @@
 namespace Flee {
 // bool isInit = true;
 
-QQClient::QQClient(uint64_t uin)
+QBaseClient::QBaseClient(uint64_t uin)
     : config(uin),
       packet(uin, config.platform, config.getDeviceDir()),
-      handler(io_service) {
+      netService(io_service) {
 
     std::vector<spdlog::sink_ptr> sinks = {
         std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),
@@ -49,7 +51,7 @@ QQClient::QQClient(uint64_t uin)
     }
 }
 
-void QQClient::login() {
+void QBaseClient::login() {
     ByteArray password = packet.getPassword();
 
     /**
@@ -59,7 +61,7 @@ void QQClient::login() {
                           "125.94.60.148:14000",    "42.81.192.226:443",
                           "114.221.148.233:8080",   "42.81.172.22:80" };
     */
-    handler.connect("msfwifi.3g.qq.com", "8080");
+    netService.connect("msfwifi.3g.qq.com", "8080");
     const std::string& token_dir(config.getTokenDir());
 
     if(password.empty()) {
@@ -80,24 +82,24 @@ void QQClient::login() {
         passwordLogin(password);
     }
     // 读取数据包
-    handler.async_read(
+    netService.async_read(
         [this](ByteArray& bytes) { this->packet.parseFlagPacket(bytes); });
     io_service.run();
 }
 
-bool QQClient::tokenLogin(const ByteArray& data) {
+bool QBaseClient::tokenLogin(const ByteArray& data) {
     return false;
 }
 
-bool QQClient::passwordLogin(const ByteArray& data) {
+bool QBaseClient::passwordLogin(const ByteArray& data) {
     return false;
 }
 
-bool QQClient::qrcodeLogin() {
+bool QBaseClient::qrcodeLogin() {
     return false;
 }
 
-bool QQClient::fetchQrcode() {
+bool QBaseClient::fetchQrcode() {
     ByteArray body;
     /**
         const body = new writer_1.default()
@@ -121,21 +123,40 @@ bool QQClient::fetchQrcode() {
     body = packet.buildCode2dPacket(0x31, 0x11100, body);
 
     // spdlog::info("send data: size={}", body.size());
-    handler.write(body, [this](std::size_t size) {
+    netService.write(body, [this](std::size_t size) {
         this->listener.add(
             this->packet.sig.seq,
-            std::bind(&QQPackTlv::ParseQtcode, &packet, std::placeholders::_1));
+            std::bind(&QBaseClient::parseQtcode, this, std::placeholders::_1));
     });
     return false;
 }
 
-void QQClient::queryQrcodeResult() {
+void QBaseClient::queryQrcodeResult() {
     if(!packet.sig.qrsig.size()) {
     } else {
         ByteArray body;
         body << uint16_t(5) << uint8_t(1) << uint32_t(16)
              << BuildPackage(packet.sig.qrsig) << uint64_t(0) << uint8_t(8)
              << uint32_t(0) << uint16_t(0);
+    }
+}
+void QBaseClient::parseQtcode(ByteArray& buffer) {
+    spdlog::info("buffer size= {}", buffer.size());
+    buffer.discardExact(16);
+    buffer.discardExact(-1);
+    buffer = Tea::decrypt(packet.ecdh.getShareKey(), buffer);
+    buffer.discardExact(54);
+    uint8_t   retcode = buffer.read<uint8_t>();
+    ByteArray qrsig   = buffer.readByteArray(buffer.read<uint16_t>());
+    buffer.discardExact(2);
+    auto t = QQPackTlv::readTlv(buffer);
+    if((!retcode) && t.count(0x17)) {
+        packet.sig.qrsig = qrsig;
+        loginHander.qrcode(config.getQRCodeDir(), t[0x17]);
+        this->logger->info("The QR code picture has been saved to: {}",
+                           config.getQRCodeDir());
+    } else {
+        this->logger->error("Failed to obtain the QR code. Please try again.");
     }
 }
 

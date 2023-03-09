@@ -2,7 +2,7 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-03-04 16:44
+ * @LastEditTime: 2023-03-04 18:32
  * @FilePath: \Flee\src\util\ecdh.cpp
  * @Description:
  */
@@ -51,7 +51,7 @@ ECDH::ECDH()
                      ( unsigned char* )ECDH::keyStr.data())) {
         spdlog::error("ERROR in generating ECDH's Key Pair.");
     } else {
-        share_key.discardExact(16, false);
+        share_key.discardExact(-16);
         shareKey = std::move(md5(share_key));
     }
 }

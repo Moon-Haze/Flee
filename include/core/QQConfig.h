@@ -2,16 +2,15 @@
  * @Author: Moon-Haze swx1126200515@outlook.com
  * @Date: 2023-01-24 20:42
  * @LastEditors: Moon-Haze swx1126200515@outlook.com
- * @LastEditTime: 2023-02-13 18:14
- * @FilePath: \Flee\include\code\QQConfig.h
+ * @LastEditTime: 2023-03-04 19:53
+ * @FilePath: \Flee\include\core\QQConfig.h
  * @Description:
  */
+
 #ifndef FLEE_QQCONFIG_H
 #define FLEE_QQCONFIG_H
 
-#include "ByteArray.h"
 #include "QQProtocol.h"
-#include <cstdint>
 #include <string>
 
 namespace Flee {
@@ -24,6 +23,8 @@ private:
     std::string data_dir;
     std::string device_dir;
     std::string token_dir;
+    std::string qrcode_dir;
+
 public:
     Platform platform = Platform::Android;
 
@@ -51,31 +52,9 @@ public:
     const std::string& getDeviceDir() const;
 
     const std::string& getTokenDir() const;
+
+    const std::string& getQRCodeDir() const;
 };
-
-template <typename T = uint16_t>
-class BuildPackage {
-    /* data */
-    ByteArray data;
-    T         offset;
-
-public:
-    BuildPackage(const ByteArray& data, T offset = 0);
-
-    BuildPackage(const std::string& data, T offset = 0);
-
-    template <typename Z>
-    BuildPackage(Z data, T offset = 0)
-        : data(std::move(ByteArray::from<Z>(data))), offset(offset) {}
-
-    T                getOffset() const;
-    const ByteArray& getData() const;
-};
-
-template <typename T>
-ByteArray& operator<<(ByteArray& array, const BuildPackage<T>& packet);
-
-#define BuildPackageWithLength(data) BuildPackage<uint32_t>(data, 4)
 
 };     // namespace Flee
 #endif // FLEE_QQCONFIG_H
