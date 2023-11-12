@@ -1,0 +1,7 @@
+.history/
+build/
+.vscode/
+.cache/
+decrypt/
+.idea/
+cmake-build-*/

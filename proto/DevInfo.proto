@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package Flee;
+
+message DevInfo {
+  optional bytes bootloader = 1;
+  optional bytes procVersion = 2;
+  optional bytes codename = 3;
+  optional bytes incremental = 4;
+  optional bytes fingerprint = 5;
+  optional bytes bootId = 6;
+  optional bytes androidId = 7;
+  optional bytes baseBand = 8;
+  optional bytes innerVersion = 9;
+}

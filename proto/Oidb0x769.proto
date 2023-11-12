@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package Flee;
+
+message ConfigSeq {
+  optional int32 type = 1;
+  optional int32 version = 2;
+}
+message QueryUinPackageUsageReq{
+  optional int32 type = 1;
+  optional int64 uinFileSize = 2;
+}
+message ReqBody {
+  repeated ConfigSeq configList = 1;
+  optional string info = 3;
+  optional string province = 4;
+  optional string city = 5;
+  optional int32 reqDebugMsg = 6;
+  optional QueryUinPackageUsageReq queryUinPackageUsageReq = 101;
+}
